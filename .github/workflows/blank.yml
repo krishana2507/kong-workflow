@@ -21,7 +21,7 @@ jobs:
 
       - name: Lint OpenAPI Spec
         run: |
-          ./inso lint spec oas-httpbin-modified.yml --verbose 
+          ./inso lint spec oas-httpbin.yaml --verbose 
 
       # - name: Generate kong.yaml
       #   run: ./inso generate config oas-httpbin-modified.yml --type declarative -o kong.yaml
@@ -48,8 +48,8 @@ jobs:
 
       - name: check
         run: |  
-          cat oas-httpbin-modified.yml
-          deck sync -s oas-httpbin-modified.yml --kong-addr https://us.api.konghq.com/v2/control-planes/c1b32c25-8557-410c-9ea9-a3c2ca174835 --header 'Authorization: kpat_P5PCapsYVA3zlplkqkmWtuSRPRcJ5HP0xEbPvqzrGBkwZYYre'
+          cat oas-httpbin.yaml
+          deck sync -s oas-httpbin.yaml --kong-addr https://us.api.konghq.com/v2/control-planes/c1b32c25-8557-410c-9ea9-a3c2ca174835 --header 'Authorization: kpat_P5PCapsYVA3zlplkqkmWtuSRPRcJ5HP0xEbPvqzrGBkwZYYre'
 
       
       - name: Commit files
