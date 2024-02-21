@@ -46,11 +46,11 @@ jobs:
       #     sudo snap install yq
       #     yq --version
 
-      - name: check
+      - name: Set headers and run deck sync
         run: |  
-          cat test.yaml
-          # deck sync -s test.yaml --kong-addr https://us.api.konghq.com/v2/control-planes/c1b32c25-8557-410c-9ea9-a3c2ca174835 --header 'Authorization: kpat_P5PCapsYVA3zlplkqkmWtuSRPRcJ5HP0xEbPvqzrGBkwZYYre'
-          deck sync -s test.yaml --kong-addr=https://us.api.konghq.com/v2/control-planes/c1b32c25-8557-410c-9ea9-a3c2ca174835 --header 'Authorization: kpat_P5PCapsYVA3zlplkqkmWtuSRPRcJ5HP0xEbPvqzrGBkwZYYre'
+           cat test.yaml
+           export DECK_HEADER_Authorization="kpat_P5PCapsYVA3zlplkqkmWtuSRPRcJ5HP0xEbPvqzrGBkwZYYre"
+           deck sync -s test.yaml --kong-addr=https://us.api.konghq.com/v2/control-planes/c1b32c25-8557-410c-9ea9-a3c2ca174835
 
 
       
