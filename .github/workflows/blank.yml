@@ -16,12 +16,11 @@ jobs:
 
       - name: Install Insomnia CLI
         run: |
-          wget https://github.com/Kong/insomnia/releases/download/lib%403.12.0/inso-linux-3.12.0.tar.xz
+          wget https://github.com/Kong/insomnia/releases/download/lib%408.6.1/inso-linux-8.6.1.tar.xz
           tar -xf inso-linux-3.12.0.tar.xz
 
       - name: Lint OpenAPI Spec
         run: |
-          ./inso update --self
           ./inso lint spec petstore.yaml --verbose 
 
       # - name: Generate kong.yaml
