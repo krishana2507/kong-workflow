@@ -21,9 +21,7 @@ jobs:
 
       - name: Lint OpenAPI Spec
         run: |
-          ./inso update
-           git init
-           git status
+          ./inso update --self
           ./inso lint spec oas-httpbin-modified.yml --verbose 
 
       # - name: Generate kong.yaml
