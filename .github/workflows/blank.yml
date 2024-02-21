@@ -49,7 +49,7 @@ jobs:
       - name: Set headers and run deck sync
         run: |  
               cat test.yaml
-              export --konnect-token="spat_XHJDElawe1n7gPfTiNfyDwpE6nsGCLKh28XSEbsoE3nwg1QPZ"
+              export konnect-token="spat_XHJDElawe1n7gPfTiNfyDwpE6nsGCLKh28XSEbsoE3nwg1QPZ"
               deck sync -s test.yaml --kong-addr=https://us.api.konghq.com/v2/control-planes/c1b32c25-8557-410c-9ea9-a3c2ca174835
 
 
