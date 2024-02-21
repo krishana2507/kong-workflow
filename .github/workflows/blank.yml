@@ -22,7 +22,7 @@ jobs:
       - name: Lint OpenAPI Spec
         run: |
           ./inso update --self
-          ./inso lint spec oas-httpbin-modified.yml --verbose 
+          ./inso lint spec petstore.yaml --verbose 
 
       # - name: Generate kong.yaml
       #   run: ./inso generate config oas-httpbin-modified.yml --type declarative -o kong.yaml
