@@ -50,8 +50,7 @@ jobs:
         run: |  
               cat test.yaml
               export DECK_KONNECT_TOKEN="spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA" 
-              deck gateway sync test.yaml --konnect-addr https://us.api.konghq.com/v2/control-planes/c1b32c25-8557-410c-9ea9-a3c2ca174835
-
+              deck gateway sync test.yaml --konnect-addr https://us.api.konghq.com/v2/control-planes/04332fa3-6402-403e-9229-478e806b7d17
 
       
       - name: Commit files
