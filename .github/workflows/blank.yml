@@ -48,9 +48,7 @@ jobs:
 
       - name: Set headers and run deck sync
         run: |  
-              cat test.yaml
-              # export DECK_KONNECT_TOKEN=spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA 
-              #deck gateway ping --konnect-addr https://us.api.konghq.com/v2/control-planes/04332fa3-6402-403e-9229-478e806b7d17
+              cat pa-new-3.yaml
               deck gateway sync pa-new-3.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name KS-Cp-konnect
 
       
