@@ -23,8 +23,8 @@ jobs:
         run: |
           ./inso lint spec test.yaml 
 
-      # - name: Generate kong.yaml
-      #   run: ./inso generate config oas-httpbin-modified.yml --type declarative -o kong.yaml
+      - name: Generate kong.yaml
+        run: ./inso generate config test.yaml --type declarative -o kong.yaml
 
       - name: install deck CLI
         run: |
@@ -32,9 +32,8 @@ jobs:
           tar -xf deck.tar.gz -C /tmp 
           sudo cp /tmp/deck /usr/local/bin/
 
-      # - name: update
-      #   # run: deck convert --from kong-gateway-2.x --to kong-gateway-3.x --input-file kong.yaml --output-file new-kong.yaml
-      #   run: deck convert --from kong-gateway-2.x --to kong-gateway-3.x --input-file kong.yaml --output-file new-api.yaml
+      - name: update
+        run: deck convert --from kong-gateway-2.x --to kong-gateway-3.x --input-file kong.yaml --output-file new-kong.yaml
 
       # - name: download jq
       #   run: |
