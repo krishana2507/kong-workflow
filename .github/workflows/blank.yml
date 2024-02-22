@@ -52,25 +52,67 @@ jobs:
               deck sync  --select-tag dev -s kong.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
 
       
-      # - name: Commit files
-      #   id: commit
-      #   run: | 
-      #     git config --local user.email "krishna.sharma@neosalpha.com"
-      #     git config --local user.name "krishna2507"
-      #     git add \*.yaml
-      #     if [-z "$(git status --porcelain)"]; then
-      #        echo "::set-output name=push::false"
-      #     else
-      #        git commit -m "Add changes sd" -a
-      #        echo "::set-output name=push::true"
-      #     fi
-      #   shell: bash
-       
-      # - name: Push changes
-      #   if: steps.commit.outputs.push == 'true'
-      #   uses: ad-m/github-push-action@master
-      #   with:
-      #      github_token: ${{ secrets.GITHUB_TOKEN }}
+  publish-customer-api-to-portal:  # Publish the API to the dev portal
+  
+    name: Publish OAS to dev portal
+
+    needs: OAS_TO_Kong   # Make sure the completed before running this job
+
+    runs-on: ubuntu-latest  # Use Ubuntu as the operating system for the job
+
+    steps:
+
+      
+      - name: Create API product
+        run: |
+          curl --request POST \
+            --url https://us.api.konghq.com/v2/api-products \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "name": "test-product",
+              "description": "Creating through admin api",
+              "labels": {}
+            }'
+
+      - name: Publish the product to the dev portal
+        run: |
+          curl --request PATCH \
+            --url https://us.api.konghq.com/v2/api-products/fb44c5e6-6811-4933-916c-fca9ad2cb3e8 \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "portal_ids":["a4de9169-5d2a-494e-8411-4d44c555abd9"]
+            }'
+
+      - name: Create the product version
+        run: |
+          curl --request POST \
+            --url https://us.api.konghq.com/v2/api-products/fb44c5e6-6811-4933-916c-fca9ad2cb3e8/product-versions \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "name": "v1",
+              "publish_status": "published",
+              "gateway_service": null
+            }'
+
+      - name: Link service to the product version
+        run: |
+          curl --request PATCH \
+            --url https://us.api.konghq.com/v2/api-products/fb44c5e6-6811-4933-916c-fca9ad2cb3e8/product-versions/1b53cbe2-7e5c-4c2f-a246-46055b365314 \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "name": "v1",
+              "publish_status": "published",
+              "deprecated": false,
+              "notify": true,
+              "gateway_service": {
+                "control_plane_id": "04332fa3-6402-403e-9229-478e806b7d17",
+                "id": "de359fd8-c82f-4dc3-8bb1-0578c08f7903"
+              }
+            }'
 
     
   
