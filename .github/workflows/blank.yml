@@ -82,8 +82,9 @@ jobs:
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             --header 'Content-Type: application/json' \
             --data '{
-              "portal_ids":["a4de9169-5d2a-494e-8411-4d44c555abd9"]
-            }'
+                "publish_status": "published",
+                "portal_ids":["a4de9169-5d2a-494e-8411-4d44c555abd9"]
+              }'
 
       - name: Create the product version
         run: |
