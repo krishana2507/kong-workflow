@@ -14,17 +14,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Install Insomnia CLI
-        run: |
-          wget https://github.com/Kong/insomnia/releases/download/lib%408.6.1/inso-linux-8.6.1.tar.xz
-          tar -xf inso-linux-8.6.1.tar.xz
+      # - name: Install Insomnia CLI
+      #   run: |
+      #     wget https://github.com/Kong/insomnia/releases/download/lib%408.6.1/inso-linux-8.6.1.tar.xz
+      #     tar -xf inso-linux-8.6.1.tar.xz
 
-      - name: Lint OpenAPI Spec
-        run: |
-          ./inso lint spec test.yaml 
+      # - name: Lint OpenAPI Spec
+      #   run: |
+      #     ./inso lint spec test.yaml 
 
-      - name: Generate kong.yaml
-        run: ./inso generate config test.yaml --type declarative -o kong.yaml
+      # - name: Generate kong.yaml
+      #   run: ./inso generate config test.yaml --type declarative -o kong.yaml
 
       - name: install deck CLI
         run: |
@@ -32,8 +32,8 @@ jobs:
           tar -xf deck.tar.gz -C /tmp 
           sudo cp /tmp/deck /usr/local/bin/
 
-      - name: update
-        run: deck convert --from kong-gateway-2.x --to kong-gateway-3.x --input-file kong.yaml --output-file new-kong.yaml
+      # - name: update
+      #   run: deck convert --from kong-gateway-2.x --to kong-gateway-3.x --input-file kong.yaml --output-file new-kong.yaml
 
       # - name: download jq
       #   run: |
@@ -47,8 +47,9 @@ jobs:
 
       - name: Set headers and run deck sync
         run: |  
-              cat new-kong.yaml
-              deck sync  --select-tag konnect-managed -s new-kong.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
+              # cat new-kong.yaml
+              deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
+              deck sync  --select-tag dev -s kong.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
 
       
       # - name: Commit files
