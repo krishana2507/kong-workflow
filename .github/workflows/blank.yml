@@ -21,7 +21,7 @@ jobs:
 
       - name: Lint OpenAPI Spec
         run: |
-          ./inso lint spec test.yaml 
+          ./inso lint spec petstore.yaml 
 
       # - name: Generate kong.yaml
       #   run: ./inso generate config oas-httpbin-modified.yml --type declarative -o kong.yaml
@@ -49,9 +49,9 @@ jobs:
       - name: Set headers and run deck sync
         run: |  
               cat test.yaml
-              export DECK_KONNECT_TOKEN=spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA 
+              # export DECK_KONNECT_TOKEN=spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA 
               #deck gateway ping --konnect-addr https://us.api.konghq.com/v2/control-planes/04332fa3-6402-403e-9229-478e806b7d17
-              deck gateway sync test.yaml --konnect-control-plane-name KS-Cp-konnect
+              deck gateway sync petstore.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name KS-Cp-konnect
 
       
       - name: Commit files
