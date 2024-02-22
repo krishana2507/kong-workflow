@@ -48,7 +48,7 @@ jobs:
       - name: Set headers and run deck sync
         run: |  
               cat new-kong.yaml
-              deck gateway sync new-kong.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
+              deck gateway sync --select-tag konnect-managed new-kong.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
 
       
       # - name: Commit files
