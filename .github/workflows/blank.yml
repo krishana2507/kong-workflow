@@ -72,7 +72,7 @@ jobs:
 
        - name: Create API product
          run: |
-                  curl --request POST \
+                  curl --request PATCH \
                     --url https://us.api.konghq.com/v2/api-products \
                     --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
                     --header 'Content-Type: application/json' \
@@ -155,6 +155,10 @@ jobs:
           echo "Control Plane ID: $Control_Plane_ID"
           echo "Service ID: $Service_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
+          sid=$Service_ID
+          cid=$Control_Plane_ID
+          echo "$sid"
+          echo "$cid"
           curl --location --request PATCH "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID" \
                 --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
                 --header 'Content-Type: application/json' \
