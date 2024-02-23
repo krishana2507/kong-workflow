@@ -94,7 +94,7 @@ jobs:
               echo "Error: API Product ID not found."
               exit 1
             fi
-            echo "API Product ID: $api_product_id"
+            echo "::set-output name=api_product_id::$api_product_id"
 
        - name: Get Dev Portal ID
          run: |
@@ -102,12 +102,12 @@ jobs:
             --url https://us.api.konghq.com/v2/portals \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             | jq -r '.data[].id')
-          echo "Dev Portal ID: $Dev_portal_id"
+            echo "::set-output name=dev_portal_id::$Dev_portal_id"
 
        - name: Publish product to the dev portal
          run: |
-          echo "API Product ID: $api_product_id"
-          echo "Dev Portal ID: $Dev_portal_id"
+          echo "API Product ID: ${{ steps.get_api_product_id.outputs.api_product_id }}"
+          echo "Dev Portal ID: ${{ steps.get_dev_portal_id.outputs.dev_portal_id }}"
           curl --request PATCH \
             --url https://us.api.konghq.com/v2/api-products/$api_product_id \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
