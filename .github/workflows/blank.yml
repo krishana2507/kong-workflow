@@ -142,12 +142,12 @@ jobs:
 
        - name: Get Service ID
          run: |
-            echo "Control Plane Id: $Control_Plane_ID"
-            gateway_service_name="${{ env.GATEWAY_SERVICE_NAME }}"
-            service_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/$Control_Plane_ID/core-entities/services' \ 
+          echo "Control Plane Id: $Control_Plane_ID"
+          gateway_service_name="${{ env.GATEWAY_SERVICE_NAME }}"
+          service_id=$(curl --location "https://us.api.konghq.com/v2/control-planes/$Control_Plane_ID/core-entities/services" \
             --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             | jq -r --arg gateway_service_name "$gateway_service_name" '.data[] | select(.name == $gateway_service_name) | .id')
-            echo "Service_ID=$service_id" >> $GITHUB_ENV
+          echo "Service_ID=$service_id" >> $GITHUB_ENV
 
        # - name: Link service to the product version
        #   run: |
