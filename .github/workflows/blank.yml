@@ -84,11 +84,17 @@ jobs:
 
        - name: Get API product ID
          run: |
-          api_product_id=$(curl --request GET \
-            --url https://us.api.konghq.com/v2/api-products \
-            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-            | jq -r '.data[] | select(.name ==${{ env.API_PRODUCT_NAME }}) | .id')
-          echo "API Product ID: $api_product_id"
+            api_product_name="${{ env.API_PRODUCT_NAME }}"
+            api_product_id=$(curl --request GET \
+              --url https://us.api.konghq.com/v2/api-products \
+              --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+              | jq -r --arg api_product_name "$api_product_name" '.data[] | select(.name == $api_product_name) | .id // empty')
+            
+            if [ "$api_product_id" = "empty" ]; then
+              echo "Error: API Product ID not found."
+              exit 1
+            fi
+            echo "API Product ID: $api_product_id"
 
        # - name: Get Dev Portal ID
        #   run: |
