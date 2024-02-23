@@ -134,10 +134,11 @@ jobs:
 
        - name: Get Control Plane ID
          run: |
-          control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes \
-          --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-          | jq -r '.data[] | select(.name == "${{ env.CONTROL_PLANE_NAME }}") | .id')
-          echo "Control_Plane_ID=$control_plane_id" >> $GITHUB_ENV
+             control_plane_name="${{ env.CONTROL_PLANE_NAME }}"
+             control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes \
+             --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+             | jq -r --arg control_plane_name "$control_plane_name" '.data[] | select(.name == $control_plane_name) | .id // empty')
+             echo "Control_Plane_ID=$control_plane_id" >> $GITHUB_ENV
 
        # - name: Get Service ID
        #   run: |
