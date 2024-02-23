@@ -71,28 +71,42 @@ jobs:
           echo "GATEWAY_SERVICE_NAME=test-admin-api-portal" >> $GITHUB_ENV
 
        - name: Create API product
-         id: create_api_product
          run: |
-          response=$(curl --request POST \
+                  curl --request POST \
+                    --url https://us.api.konghq.com/v2/api-products \
+                    --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+                    --header 'Content-Type: application/json' \
+                    --data '{
+                      "name": "UoS-pipeline",
+                      "description": "Creating through admin api",
+                      "labels": {}
+                    }'
+
+       - name: Get API product ID
+         run: |
+          api_product_id=$(curl --request GET \
             --url https://us.api.konghq.com/v2/api-products \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-            --header 'Content-Type: application/json' \
-            --data '{
-              "name": "${{ env.API_PRODUCT_NAME }}",
-              "description": "Creating through admin api",
-              "labels": {}
-            }')
-
-          api_product_id=$(echo $response | jq -r '.id')
+            | jq -r '.data[] | select(.name == "UoS-pipeline") | .id')
           echo "API Product ID: $api_product_id"
-          echo "::set-output name=api_product_id::$api_product_id"
 
        - name: Get Dev Portal ID
-         id: get_dev_portal_id
          run: |
-          Dev_portal_id=$(curl --request GET   --url https://us.api.konghq.com/v2/portals   --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' | jq .data[].id)
+          Dev_portal_id=$(curl --request GET \
+            --url https://us.api.konghq.com/v2/portals \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            | jq -r '.data[].id')
           echo "Dev Portal ID: $Dev_portal_id"
-          echo "::set-output name=Dev_portal_id::$Dev_portal_id"
+
+       - name: Publish product to the dev portal
+         run: |
+          curl --request PATCH \
+            --url https://us.api.konghq.com/v2/api-products/$api_product_id \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data "{
+              \"portal_ids\":[\"$Dev_portal_id\"]
+            }"
 
        - name: Create the product version
          run: |
