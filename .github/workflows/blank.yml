@@ -155,7 +155,7 @@ jobs:
           echo "Control Plane ID: $Control_Plane_ID"
           echo "Service ID: $Service_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
-          curl --location --request PATCH "https://us.api.konghq.com/v2/api-products/e0de176f-475e-4d3e-bc06-892dc0e3b0cd/product-versions/4eb67e82-c653-46f3-a62f-b560798a446d" \
+          curl --location --request PATCH "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID" \
                 --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
                 --header 'Content-Type: application/json' \
                 --data '{
