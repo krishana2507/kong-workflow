@@ -166,7 +166,7 @@ jobs:
               "notify": true,
               "gateway_service": {
                 "control_plane_id": "$Control_Plane_ID",
-                "service_id": "$Service_ID"
+                "id": "$Service_ID"
               }
             }'
        # - name: Upload spec on the version
