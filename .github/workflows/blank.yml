@@ -130,15 +130,8 @@ jobs:
 
        - name: Get Service ID
          run: |
-          service_id=$(curl --request GET \
-          --url https://us.api.konghq.com/v2/control-planes/$CONTROL_PLANE_ID/core-entities/services \
-          --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-          | jq -r '.data[] | select(.name == "test-admin-api-portal") | .id // empty')
-
-          if [ "$service_id" = "empty" ]; then
-            echo "Error: Service ID not found."
-            exit 1
-          fi
+          echo "Gateway Service Name: ${{ env.GATEWAY_SERVICE_NAME }}"
+          service_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/$control_plane_id/core-entities/services' --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' | jq -r ".data[] | select(.name == \"${{ env.GATEWAY_SERVICE_NAME }}\") | .id")
           echo "Service ID: $service_id"
 
        - name: Link service to the product version
