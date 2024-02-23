@@ -132,16 +132,20 @@ jobs:
           echo "API Product Version ID=$api_product_version_id" >> $GITHUB_ENV
           # echo "::set-output name=api_product_version_id::$api_product_version_id"
 
-       # - name: Get Control Plane ID
-       #   run: |
-       #    control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/' --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' | jq -r '.data[] | select(.name == "${{ env.CONTROL_PLANE_NAME }}") | .id')
-       #    echo "Control Plane ID: $control_plane_id"
+       - name: Get Control Plane ID
+         run: |
+          control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/
+          --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' 
+          | jq -r '.data[] | select(.name == "${{ env.CONTROL_PLANE_NAME }}") | .id')
+          echo "Control_Plane_ID=$control_plane_id" >> $GITHUB_ENV
 
-       # - name: Get Service ID
-       #   run: |
-       #      echo "Gateway Service Name: ${{ env.GATEWAY_SERVICE_NAME }}"
-       #      service_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/${control_plane_id }/core-entities/services' --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' | jq -r ".data[] | select(.name == \"${{ env.GATEWAY_SERVICE_NAME }}\") | .id")
-       #      echo "Service ID: $service_id"
+       - name: Get Service ID
+         run: |
+            # echo "Gateway Service Name: ${{ env.GATEWAY_SERVICE_NAME }}"
+            service_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/$Control_Plane_ID/core-entities/services' 
+            --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' 
+            | jq -r ".data[] | select(.name == \"${{ env.GATEWAY_SERVICE_NAME }}\") | .id")
+            echo "Service_ID=$service_id" >> $GITHUB_ENV
 
        # - name: Link service to the product version
        #   run: |
