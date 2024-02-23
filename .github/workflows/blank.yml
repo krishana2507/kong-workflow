@@ -94,7 +94,7 @@ jobs:
               echo "Error: API Product ID not found."
               exit 1
             fi
-            echo "API Product ID: $api_product_id" >> $GITHUB_ENV
+            echo "API_PRODUCT_ID=$api_product_id" >> $GITHUB_ENV
 
        - name: Get Dev Portal ID
          run: |
@@ -102,18 +102,18 @@ jobs:
             --url https://us.api.konghq.com/v2/portals \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             | jq -r '.data[].id')
-             echo "Dev Portal ID: $Dev_portal_id" >> $GITHUB_ENV
+              echo "DEV_PORTAL_ID=$dev_portal_id" >> $GITHUB_ENV
 
        - name: Publish product to the dev portal
          run: |
-          echo "API Product ID: $api_product_id"
-          echo "Dev Portal ID: $Dev_portal_id"
-          curl --request PATCH \
+           echo "API Product ID: $API_PRODUCT_ID"
+           echo "Dev Portal ID: $DEV_PORTAL_ID"
+           curl --request PATCH \
             --url https://us.api.konghq.com/v2/api-products/$api_product_id \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             --header 'Content-Type: application/json' \
             --data "{
-              \"portal_ids\":[\"$Dev_portal_id\"]
+              \"portal_ids\":[\"$DEV_PORTAL_ID\"]
             }"
 
        # - name: Create the product version
