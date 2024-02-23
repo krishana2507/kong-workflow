@@ -129,7 +129,7 @@ jobs:
               "gateway_service": null
             }' | jq -r '.id')
 
-          echo "API Product Version ID=$api_product_version_id" >> $GITHUB_ENV
+          echo "API_Product_Version_ID=$api_product_version_id" >> $GITHUB_ENV
           # echo "::set-output name=api_product_version_id::$api_product_version_id"
 
        - name: Get Control Plane ID
@@ -149,22 +149,26 @@ jobs:
             | jq -r --arg gateway_service_name "$gateway_service_name" '.data[] | select(.name == $gateway_service_name) | .id')
           echo "Service_ID=$service_id" >> $GITHUB_ENV
 
-       # - name: Link service to the product version
-       #   run: |
-       #    curl --request PATCH \
-       #      --url https://us.api.konghq.com/v2/api-products/$api_product_id/product-versions/$api_product_version_id \
-       #      --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-       #      --header 'Content-Type: application/json' \
-       #      --data '{
-       #        "name": "v1",
-       #        "publish_status": "published",
-       #        "deprecated": false,
-       #        "notify": true,
-       #        "gateway_service": {
-       #          "control_plane_id": "$control_plane_id",
-       #          "id": "$service_id"
-       #        }
-       #      }'
+       - name: Link service to the product version
+         run: |
+          echo "API_PRODUCT_ID=$api_product_id"
+          echo "Control_Plane_ID=$control_plane_id"
+          echo "Service_ID=$service_id"
+          echo "API_Product_Version_ID=$api_product_version_id"
+          curl --request PATCH \
+            --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "name": "v1",
+              "publish_status": "published",
+              "deprecated": false,
+              "notify": true,
+              "gateway_service": {
+                "control_plane_id": "$Control_Plane_ID",
+                "id": "$Service_ID"
+              }
+            }'
 
        # - name: Upload spec on the version
        #   run: |
