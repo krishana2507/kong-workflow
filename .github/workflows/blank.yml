@@ -155,20 +155,19 @@ jobs:
           echo "Control Plane ID: $Control_Plane_ID"
           echo "Service ID: $Service_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
-          curl --request PATCH \
-            --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID \
-            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-            --header 'Content-Type: application/json' \
-            --data '{
-              "name": "v1",
-              "publish_status": "published",
-              "deprecated": false,
-              "notify": true,
-              "gateway_service": {
-                "control_plane_id": "$Control_Plane_ID",
-                "id": "$Service_ID"
-              }
-            }'
+          curl --location --request PATCH "https://us.api.konghq.com/v2/api-products/e0de176f-475e-4d3e-bc06-892dc0e3b0cd/product-versions/4eb67e82-c653-46f3-a62f-b560798a446d" \
+                --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+                --header 'Content-Type: application/json' \
+                --data '{
+                              "name": "v1",
+                              "publish_status": "published",
+                              "deprecated": false,
+                              "notify": true,
+                              "gateway_service": {
+                                "control_plane_id": "04332fa3-6402-403e-9229-478e806b7d17",
+                                "id": "7a05bfd3-1aff-4db2-a013-6b80c490c86d"
+                              }
+                            }'
        # - name: Upload spec on the version
        #   run: |
        #    curl --request POST \
