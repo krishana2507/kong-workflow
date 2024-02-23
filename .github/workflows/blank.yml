@@ -116,20 +116,21 @@ jobs:
               \"portal_ids\":[\"$DEV_PORTAL_ID\"]
             }"
 
-       # - name: Create the product version
-       #   run: |
-       #    api_product_version_id=$(curl --request POST \
-       #      --url https://us.api.konghq.com/v2/api-products/$api_product_id/product-versions \
-       #      --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-       #      --header 'Content-Type: application/json' \
-       #      --data '{
-       #        "name": "v1",
-       #        "publish_status": "published",
-       #        "gateway_service": null
-       #      }' | jq -r '.id')
+       - name: Create the product version
+         run: |
+          echo "API Product ID: $API_PRODUCT_ID"
+          api_product_version_id=$(curl --request POST \
+            --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "name": "v1",
+              "publish_status": "published",
+              "gateway_service": null
+            }' | jq -r '.id')
 
-       #    echo "API Product Version ID: $api_product_version_id"
-       #    echo "::set-output name=api_product_version_id::$api_product_version_id"
+          echo "API Product Version ID: $api_product_version_id" >> $GITHUB_ENV
+          # echo "::set-output name=api_product_version_id::$api_product_version_id"
 
        # - name: Get Control Plane ID
        #   run: |
