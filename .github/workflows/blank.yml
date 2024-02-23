@@ -130,19 +130,9 @@ jobs:
 
        - name: Get Service ID
          run: |
-          api_response=$(curl --location 'https://us.api.konghq.com/v2/control-planes/$control_plane_id/core-entities/services' --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA')
-          if [ -z "$api_response" ]; then
-            echo "Error: API response is empty."
-            exit 1
-          fi
-
-          # Extract service ID
-          service_id=$(echo "$api_response" | jq -r ".data[] | select(.name == \"${{ env.GATEWAY_SERVICE_NAME }}\") | .id // empty")
-          if [ -z "$service_id" ]; then
-            echo "Error: Service ID not found."
-            exit 1
-          fi
-          echo "Service ID: $service_id"
+            echo "Gateway Service Name: ${{ env.GATEWAY_SERVICE_NAME }}"
+            service_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/${{ control_plane_id }}/core-entities/services' --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' | jq -r ".data[] | select(.name == \"${{ env.GATEWAY_SERVICE_NAME }}\") | .id")
+            echo "Service ID: $service_id"
 
        - name: Link service to the product version
          run: |
