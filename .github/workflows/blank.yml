@@ -104,15 +104,15 @@ jobs:
             | jq -r '.data[].id')
           echo "Dev Portal ID: $Dev_portal_id"
 
-       # - name: Publish product to the dev portal
-       #   run: |
-       #    curl --request PATCH \
-       #      --url https://us.api.konghq.com/v2/api-products/$api_product_id \
-       #      --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-       #      --header 'Content-Type: application/json' \
-       #      --data "{
-       #        \"portal_ids\":[\"$Dev_portal_id\"]
-       #      }"
+       - name: Publish product to the dev portal
+         run: |
+          curl --request PATCH \
+            --url https://us.api.konghq.com/v2/api-products/$api_product_id \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data "{
+              \"portal_ids\":[\"$Dev_portal_id\"]
+            }"
 
        # - name: Create the product version
        #   run: |
