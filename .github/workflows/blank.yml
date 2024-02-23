@@ -80,7 +80,7 @@ jobs:
                       "name": "${{ env.API_PRODUCT_NAME }}",
                       "description": "Creating through admin api",
                       "labels": {}
-                    }'
+                    }' 
 
        - name: Get API product ID
          run: |
