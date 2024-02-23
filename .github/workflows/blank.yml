@@ -129,7 +129,7 @@ jobs:
               "gateway_service": null
             }' | jq -r '.id')
 
-          echo "API Product Version ID: $api_product_version_id" >> $GITHUB_ENV
+          echo "API Product Version ID=$api_product_version_id" >> $GITHUB_ENV
           # echo "::set-output name=api_product_version_id::$api_product_version_id"
 
        # - name: Get Control Plane ID
