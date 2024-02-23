@@ -151,10 +151,10 @@ jobs:
 
        - name: Link service to the product version
          run: |
-          echo "API_PRODUCT_ID: $api_product_id"
-          echo "Control_Plane_ID: $control_plane_id"
-          echo "Service_ID: $service_id"
-          echo "API_Product_Version_ID: $api_product_version_id"
+          echo "API_PRODUCT_ID: $API_PRODUCT_ID"
+          echo "Control_Plane_ID: $Control_Plane_ID"
+          echo "Service_ID: $Service_ID"
+          echo "API_Product_Version_ID: $API_Product_Version_ID"
           curl --request PATCH \
             --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
