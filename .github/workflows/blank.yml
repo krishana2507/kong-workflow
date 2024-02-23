@@ -142,6 +142,7 @@ jobs:
 
        - name: Get Service ID
          run: |
+            echo "Control Plane Id: $Control_Plane_ID"
             gateway_service_name="${{ env.GATEWAY_SERVICE_NAME }}"
             service_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/$Control_Plane_ID/core-entities/services' \ 
             --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
