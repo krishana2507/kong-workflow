@@ -96,13 +96,13 @@ jobs:
             fi
             echo "API Product ID: $api_product_id"
 
-       # - name: Get Dev Portal ID
-       #   run: |
-       #    Dev_portal_id=$(curl --request GET \
-       #      --url https://us.api.konghq.com/v2/portals \
-       #      --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-       #      | jq -r '.data[].id')
-       #    echo "Dev Portal ID: $Dev_portal_id"
+       - name: Get Dev Portal ID
+         run: |
+          Dev_portal_id=$(curl --request GET \
+            --url https://us.api.konghq.com/v2/portals \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            | jq -r '.data[].id')
+          echo "Dev Portal ID: $Dev_portal_id"
 
        # - name: Publish product to the dev portal
        #   run: |
