@@ -82,13 +82,13 @@ jobs:
                       "labels": {}
                     }'
 
-       # - name: Get API product ID
-       #   run: |
-       #    api_product_id=$(curl --request GET \
-       #      --url https://us.api.konghq.com/v2/api-products \
-       #      --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-       #      | jq -r '.data[] | select(.name == "UoS-pipeline") | .id')
-       #    echo "API Product ID: $api_product_id"
+       - name: Get API product ID
+         run: |
+          api_product_id=$(curl --request GET \
+            --url https://us.api.konghq.com/v2/api-products \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            | jq -r '.data[] | select(.name ==$api_product_name) | .id')
+          echo "API Product ID: $api_product_id"
 
        # - name: Get Dev Portal ID
        #   run: |
