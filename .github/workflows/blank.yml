@@ -77,7 +77,7 @@ jobs:
                     --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
                     --header 'Content-Type: application/json' \
                     --data '{
-                      "name": "UoS-pipeline",
+                      "name": "${{ env.API_PRODUCT_NAME }}",
                       "description": "Creating through admin api",
                       "labels": {}
                     }'
