@@ -68,7 +68,7 @@ jobs:
          run: |
           echo "API_PRODUCT_NAME=test-product" >> $GITHUB_ENV
           echo "CONTROL_PLANE_NAME=KS-Cp-konnect" >> $GITHUB_ENV
-          echo "GATEWAY_SERVICE_NAME=test-admin-api-portal" >> $GITHUB_ENV
+          echo "GATEWAY_SERVICE_NAME=SPEND_API" >> $GITHUB_ENV
 
        - name: Create API product
          run: |
