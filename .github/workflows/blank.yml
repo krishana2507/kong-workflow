@@ -63,45 +63,66 @@ jobs:
     steps:
 
       
-      - name: Create API product
-        run: |
-          curl --request POST \
+       - name: Set environment variables
+         id: set_env_vars
+         run: |
+          echo "API_PRODUCT_NAME=test-product" >> $GITHUB_ENV
+          echo "CONTROL_PLANE_NAME=KS-Cp-konnect" >> $GITHUB_ENV
+          echo "GATEWAY_SERVICE_NAME=test-admin-api-portal" >> $GITHUB_ENV
+
+       - name: Create API product
+         id: create_api_product
+         run: |
+          response=$(curl --request POST \
             --url https://us.api.konghq.com/v2/api-products \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             --header 'Content-Type: application/json' \
             --data '{
-              "name": "test-product-pipeline",
+              "name": "${{ env.API_PRODUCT_NAME }}",
               "description": "Creating through admin api",
               "labels": {}
-            }'
+            }')
 
-      - name: Publish the product to the dev portal
-        run: |
-          curl --request PATCH \
-            --url https://us.api.konghq.com/v2/api-products/fb44c5e6-6811-4933-916c-fca9ad2cb3e8 \
-            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-            --header 'Content-Type: application/json' \
-            --data '{
-                "publish_status": "published",
-                "portal_ids":["a4de9169-5d2a-494e-8411-4d44c555abd9"]
-              }'
+          api_product_id=$(echo $response | jq -r '.id')
+          echo "API Product ID: $api_product_id"
+          echo "::set-output name=api_product_id::$api_product_id"
 
-      - name: Create the product version
-        run: |
-          curl --request POST \
-            --url https://us.api.konghq.com/v2/api-products/fb44c5e6-6811-4933-916c-fca9ad2cb3e8/product-versions \
+       - name: Get Dev Portal ID
+         id: get_dev_portal_id
+         run: |
+          Dev_portal_id=$(curl --request GET   --url https://us.api.konghq.com/v2/portals   --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' | jq .data[].id)
+          echo "Dev Portal ID: $Dev_portal_id"
+          echo "::set-output name=Dev_portal_id::$Dev_portal_id"
+
+       - name: Create the product version
+         run: |
+          api_product_version_id=$(curl --request POST \
+            --url https://us.api.konghq.com/v2/api-products/$api_product_id/product-versions \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             --header 'Content-Type: application/json' \
             --data '{
               "name": "v1",
               "publish_status": "published",
               "gateway_service": null
-            }'
+            }' | jq -r '.id')
 
-      - name: Link service to the product version
-        run: |
+          echo "API Product Version ID: $api_product_version_id"
+          echo "::set-output name=api_product_version_id::$api_product_version_id"
+
+       - name: Get Control Plane ID
+         run: |
+          control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes/' --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' | jq -r '.data[] | select(.name == "${{ env.CONTROL_PLANE_NAME }}") | .id')
+          echo "Control Plane ID: $control_plane_id"
+
+       - name: Get Service ID
+         run: |
+          service_id=$(curl --request GET   --url https://us.api.konghq.com/v2/control-planes/$control_plane_id/core-entities/services   --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' | jq -r '.data[] | select(.name == "${{ env.GATEWAY_SERVICE_NAME }}") | .id')
+          echo "Gateway Service ID: $service_id"
+
+       - name: Link service to the product version
+         run: |
           curl --request PATCH \
-            --url https://us.api.konghq.com/v2/api-products/fb44c5e6-6811-4933-916c-fca9ad2cb3e8/product-versions/1b53cbe2-7e5c-4c2f-a246-46055b365314 \
+            --url https://us.api.konghq.com/v2/api-products/$api_product_id/product-versions/$api_product_version_id \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             --header 'Content-Type: application/json' \
             --data '{
@@ -110,11 +131,21 @@ jobs:
               "deprecated": false,
               "notify": true,
               "gateway_service": {
-                "control_plane_id": "04332fa3-6402-403e-9229-478e806b7d17",
-                "id": "de359fd8-c82f-4dc3-8bb1-0578c08f7903"
+                "control_plane_id": "$control_plane_id",
+                "id": "$service_id"
               }
             }'
 
+       - name: Upload spec on the version
+         run: |
+          curl --request POST \
+            --url https://us.api.konghq.com/v2/api-products/$api_product_id/product-versions/$api_product_version_id/specifications \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "name": "test.yaml",
+              "content": "TXkgWUFNTCBvciBKU09OIGZvcm1hdHRlZCBPQVMgY29udGVudA=="
+            }'
     
   
   
