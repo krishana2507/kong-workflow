@@ -21,6 +21,16 @@ jobs:
           echo "REQUEST_SIZE_LIMITING_ENABLED=true" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
 
+      - name: download jq
+        run: |
+          sudo apt install jq -y
+          jq --version
+
+      - name: download yq
+        run: |
+          sudo snap install yq
+          yq --version
+
 
       - name: install deck CLI
         run: | 
