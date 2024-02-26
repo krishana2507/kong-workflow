@@ -31,9 +31,9 @@ jobs:
 
       - name: Append Plugins to new-api.yaml
         run: |
-         if [[ "${KEY_AUTH_ENABLED}" == "true" && "${RATE_LIMITING_ENABLED}" == "true"]]; then
+         if [ "${KEY_AUTH_ENABLED}" == "true" ] && [ "${RATE_LIMITING_ENABLED}" == "true" ]; then
              sed -i '1d' ratelimmiting.yaml
-             catkeyauth.yaml ratelimiting.yaml  > combined-plugins.yaml
+             cat keyauth.yaml ratelimiting.yaml  > combined-plugins.yaml
              cat combined-plugins.yaml
              export plugins=$(cat combined-plugins.yaml)
              cat kong.yaml | yq '.services.[] = env(plugins) + .services.[]' -o yaml > modified-api.yaml
