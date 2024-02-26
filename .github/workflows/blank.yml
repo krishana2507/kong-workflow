@@ -127,10 +127,8 @@ jobs:
               "name": "v1",
               "publish_status": "published",
               "gateway_service": null
-            }')
-            api_product_version_id=$(echo "$response" | jq -r '.id')
-            echo "API Product Version ID: $api_product_version_id"
-            echo "API_PRODUCT_VERSION_ID=$api_product_version_id" >> $GITHUB_ENV
+            }'| jq -r '.id')
+              echo "API_Product_Version_ID=$api_product_version_id" >> $GITHUB_ENV
         
 
        - name: Get Control Plane ID
