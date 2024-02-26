@@ -72,7 +72,7 @@ jobs:
 
       - name: Set headers and run deck sync
         run: |  
-              # cat new-kong.yaml
+              cat modified-api.yaml
               # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
               deck sync  --select-tag dev -s modified-api.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
 
