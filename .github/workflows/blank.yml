@@ -72,7 +72,7 @@ jobs:
 
        - name: Create API product
          run: |
-                  curl --request POST \
+                  curl --request PATCH \
                     --url https://us.api.konghq.com/v2/api-products \
                     --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
                     --header 'Content-Type: application/json' \
@@ -164,8 +164,8 @@ jobs:
                               "deprecated": false,
                               "notify": true,
                               "gateway_service": {
-                                "control_plane_id": "$cid",
-                                "id": "$sid"
+                                "control_plane_id": "04332fa3-6402-403e-9229-478e806b7d17",
+                                "id": "7a05bfd3-1aff-4db2-a013-6b80c490c86d"
                               }
                             }'
        # - name: Upload spec on the version
