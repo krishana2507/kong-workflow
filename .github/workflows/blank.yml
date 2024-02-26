@@ -173,8 +173,7 @@ jobs:
          run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
-          curl --request POST \
-            --url https://us.api.konghq.com/v2/api-products/$api_product_id/product-versions/$api_product_version_id/specifications \
+          curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             --header 'Content-Type: application/json' \
             --data '{
