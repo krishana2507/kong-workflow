@@ -203,8 +203,8 @@ jobs:
                               "deprecated": false,
                               "notify": true,
                               "gateway_service": {
-                                "control_plane_id": "04332fa3-6402-403e-9229-478e806b7d17",
-                                "id": "7a05bfd3-1aff-4db2-a013-6b80c490c86d"
+                                "control_plane_id": "c06af6a4-a722-45d6-b084-9bb5f9bdb9eb",
+                                "id": "70001cc2-2634-5cc0-aea6-9d86fecbc8cb"
                               }
                             }'
        - name: Upload spec on the version
