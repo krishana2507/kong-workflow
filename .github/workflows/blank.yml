@@ -66,6 +66,7 @@ jobs:
              cat keyauth.yaml ratelimiting.yaml  > combined-plugins.yaml
              cat combined-plugins.yaml
              export plugins=$(cat combined-plugins.yaml)
+             echo $plugins
              cat kong.yaml | yq '.services.[] = env(plugins) + .services.[]' -o yaml > modified-api.yaml
            fi
 
