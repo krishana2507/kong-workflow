@@ -94,7 +94,7 @@ jobs:
               echo "Error: API Product ID not found."
               exit 1
             fi
-            echo "API_PRODUCT_ID=$api_product_id" >> $GITHUB_ENV
+            echo "API_PRODUCT_ID=$api_product_id" >> $GITHUB_ENV 
 
        - name: Get Dev Portal ID
          run: |
