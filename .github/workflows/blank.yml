@@ -72,7 +72,7 @@ jobs:
 
        - name: Create API product
          run: |
-                  curl --request PATCH \
+                  curl --request POST \
                     --url https://us.api.konghq.com/v2/api-products \
                     --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
                     --header 'Content-Type: application/json' \
@@ -119,7 +119,7 @@ jobs:
        - name: Create the product version
          run: |
           echo "API Product ID: $API_PRODUCT_ID"
-          response=$(curl --request PATCH \
+          response=$(curl --request POST \
             --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             --header 'Content-Type: application/json' \
