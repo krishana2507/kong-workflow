@@ -119,7 +119,7 @@ jobs:
        - name: Create the product version
          run: |
           echo "API Product ID: $API_PRODUCT_ID"
-          api_product_version_id=$(curl --request POST \
+          api_product_version_id=$(curl --request PATCH \
             --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions \
             --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
             --header 'Content-Type: application/json' \
@@ -168,16 +168,18 @@ jobs:
                                 "id": "7a05bfd3-1aff-4db2-a013-6b80c490c86d"
                               }
                             }'
-       # - name: Upload spec on the version
-       #   run: |
-       #    curl --request POST \
-       #      --url https://us.api.konghq.com/v2/api-products/$api_product_id/product-versions/$api_product_version_id/specifications \
-       #      --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
-       #      --header 'Content-Type: application/json' \
-       #      --data '{
-       #        "name": "test.yaml",
-       #        "content": "TXkgWUFNTCBvciBKU09OIGZvcm1hdHRlZCBPQVMgY29udGVudA=="
-       #      }'
+       - name: Upload spec on the version
+         run: |
+          echo "API PRODUCT ID: $API_PRODUCT_ID"
+          echo "API Product Version ID: $API_Product_Version_ID"
+          curl --request POST \
+            --url https://us.api.konghq.com/v2/api-products/$api_product_id/product-versions/$api_product_version_id/specifications \
+            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "name": "test.yaml",
+              "content": "TXkgWUFNTCBvciBKU09OIGZvcm1hdHRlZCBPQVMgY29udGVudA=="
+            }'
     
   
   
