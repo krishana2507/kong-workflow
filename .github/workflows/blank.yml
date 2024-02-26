@@ -44,7 +44,7 @@ jobs:
         run: |  
               # cat new-kong.yaml
               # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
-              deck sync  --select-tag dev -s kong.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
+              deck sync  --select-tag dev -s modified-api.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
 
       
   publish-customer-api-to-portal:  # Publish the API to the dev portal
