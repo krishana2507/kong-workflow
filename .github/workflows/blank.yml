@@ -19,6 +19,8 @@ jobs:
           echo "IP_RESTRICTION_ENABLED=true" >> $GITHUB_ENV
           echo "ACL_ENABLED=true" >> $GITHUB_ENV
           echo "OAS_VALIDATION_ENABLED=true" >> $GITHUB_ENV
+          echo "OPENID_CONNECT_ENABLED=true" >> $GITHUB_ENV
+          echo "CORRELATION_ID_ENABLED=true" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
       - name: download jq
         run: |
@@ -45,15 +47,20 @@ jobs:
           "true" ] && [ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ] && [
           "${HTTP_LOG_ENABLED}" == "true" ] && [ "${IP_RESTRICTION_ENABLED}" ==
           "true" ] && [ "${ACL_ENABLED}" == "true" ] && [
-          "${OAS_VALIDATION_ENABLED}" == "true" ]; then
+          "${OAS_VALIDATION_ENABLED}" == "true" ] && [ "${OPENID_CONNECT_ENABLED}" ==
+          "true" ] && [ "${CORRELATION_ID_ENABLED}" ==
+          "true" ]; then
              sed -i '1,2d' ratelimiting.yaml
              sed -i '1,2d' acl.yaml
              sed -i '1,2d' http-log.yaml
              sed -i '1,2d' request-size-limiting.yaml
              sed -i '1,2d' ip-restriction.yaml
              sed -i '1,2d' oas-validation.yaml
+             sed -i '1,2d' correlation.yaml
+             sed -i '1,2d' open-id.yaml
+
              sed -i '1d' keyauth.yaml
-             cat keyauth.yaml ratelimiting.yaml request-size-limiting.yaml acl.yaml http-log.yaml  ip-restriction.yaml oas-validation.yaml > combined-plugins.yaml
+             cat keyauth.yaml ratelimiting.yaml request-size-limiting.yaml acl.yaml http-log.yaml  ip-restriction.yaml oas-validation.yaml correlation.yaml open-id.yaml > combined-plugins.yaml
              cat combined-plugins.yaml
              export plugins=$(cat combined-plugins.yaml)
              echo $plugins
