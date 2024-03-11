@@ -1,5 +1,4 @@
 name: Kong API Gateway Workflow    
-
 on:
   push:
     branches:
@@ -19,6 +18,11 @@ jobs:
           echo "KEY_AUTH_ENABLED=true" >> $GITHUB_ENV
           echo "RATE_LIMITING_ENABLED=true" >> $GITHUB_ENV
           echo "REQUEST_SIZE_LIMITING_ENABLED=true" >> $GITHUB_ENV
+          echo "HTTP_LOG_ENABLED=true" >> $GITHUB_ENV
+          echo "IP_RESTRICTION_ENABLED=true" >> $GITHUB_ENV
+          echo "ACL_ENABLED=true" >> $GITHUB_ENV
+          echo "OAS_VALIDATION_ENABLED=true" >> $GITHUB_ENV
+
         if: github.ref == 'refs/heads/main'
 
       - name: download jq
@@ -32,48 +36,54 @@ jobs:
           yq --version
 
 
-      - name: install deck CLI
+      - name: Install deck CLI
         run: | 
           curl -sL https://github.com/kong/deck/releases/download/v1.34.0/deck_1.34.0_linux_amd64.tar.gz -o deck.tar.gz
           tar -xf deck.tar.gz -C /tmp 
           sudo cp /tmp/deck /usr/local/bin/
           deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
-      - name: Key Auth Step
-        run: |
-          if [[ "${KEY_AUTH_ENABLED}" == true ]]; then
-            echo "Executing Key Auth Step"
-            # Your key auth commands or scripts here
-            sed -i '1d' keyauth.yaml
-          else
-            echo "Key Auth Step Skipped"
-          fi
+      # - name: Key Auth Step
+      #   run: |
+      #     if [[ "${KEY_AUTH_ENABLED}" == true ]]; then
+      #       echo "Executing Key Auth Step"
+      #       # Your key auth commands or scripts here
+      #       sed -i '1d' keyauth.yaml
+      #     else
+      #       echo "Key Auth Step Skipped"
+      #     fi
 
-      - name: request size limiting Step
-        run: |
-          if [[ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ]]; then
-            echo "request size limiting Step"
-            # Your request size limiting commands or scripts here
-            sed -i '1d' request-size-limiting.yaml
-          else
-            echo "request size limiting Step Skipped"
-          fi
+      # - name: request size limiting Step
+      #   run: |
+      #     if [[ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ]]; then
+      #       echo "request size limiting Step"
+      #       # Your request size limiting commands or scripts here
+      #       sed -i '1d' request-size-limiting.yaml
+      #     else
+      #       echo "request size limiting Step Skipped"
+      #     fi
 
-      - name: Rate Limiting Step
-        run: |
-          if [[ "${RATE_LIMITING_ENABLED}" == "true" ]]; then
-            echo "Executing Rate Limiting Step"
-            # Your rate limiting commands or scripts here
-            sed -i '1d' ratelimiting.yaml
-          else
-            echo "Rate Limiting Step Skipped"
-          fi
+      # - name: Rate Limiting Step
+      #   run: |
+      #     if [[ "${RATE_LIMITING_ENABLED}" == "true" ]]; then
+      #       echo "Executing Rate Limiting Step"
+      #       # Your rate limiting commands or scripts here
+      #       sed -i '1d' ratelimiting.yaml
+      #     else
+      #       echo "Rate Limiting Step Skipped"
+      #     fi
 
       - name: Append Plugins to new-api.yaml
         run: |
-         if [ "${KEY_AUTH_ENABLED}" == "true" ] && [ "${RATE_LIMITING_ENABLED}" == "true" ] && [ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ]; then
-             sed -i '1d' ratelimiting.yaml
-             sed -i '1d' request-size-limiting.yaml
+          echo "IP_RESTRICTION_ENABLED=true" >> $GITHUB_ENV
+         if [ "${KEY_AUTH_ENABLED}" == "true" ] && [ "${RATE_LIMITING_ENABLED}" == "true" ] && [ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ] && [ "${HTTP_LOG_ENABLED}" == "true" ] && [ "${IP_RESTRICTION_ENABLED}" == "true" ] && [ "${ACL_ENABLED}" == "true" ] && [ "${OAS_VALIDATION_ENABLED}" == "true" ]; then
+             sed -i '1,2d' ratelimiting.yaml
+             sed -i '1,2d' acl.yaml
+             sed -i '1,2d' http-log.yaml
+             sed -i '1,2d' request-size-limiting.yaml
+             sed -i '1,2d' ip-restriction.yaml
+             sed -i '1,2d' oas-validation.yaml
+             sed -i '1d' keyauth.yaml
              cat keyauth.yaml ratelimiting.yaml request-size-limiting.yaml > combined-plugins.yaml
              cat combined-plugins.yaml
              export plugins=$(cat combined-plugins.yaml)
@@ -87,7 +97,7 @@ jobs:
         run: |  
               cat modified-api.yaml
               # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
-              deck sync  --select-tag dev -s modified-api.yaml --konnect-token spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA --konnect-control-plane-name Transit-testing
+              deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name Transit-testing
 
       
   publish-customer-api-to-portal:  # Publish the API to the dev portal
@@ -101,31 +111,31 @@ jobs:
     steps:
 
       
-       - name: Set environment variables
+       - name: Fech environment variables
          id: set_env_vars
          run: |
-          echo "API_PRODUCT_NAME=Demo-product-one" >> $GITHUB_ENV
-          echo "CONTROL_PLANE_NAME=KS-Cp-konnect" >> $GITHUB_ENV
-          echo "GATEWAY_SERVICE_NAME=SPEND_API" >> $GITHUB_ENV
+          echo "API_PRODUCT_NAME: ${{ vars.API_PRODUCT_NAME }}"
+          echo "CONTROL_PLANE_NAME: ${{ vars.CONTROL_PLANE_NAME }}" 
+          echo "GATEWAY_SERVICE_NAME: ${{ vars.GATEWAY_SERVICE_NAME }}" 
 
        - name: Create API product
          run: |
                   curl --request POST \
                     --url https://us.api.konghq.com/v2/api-products \
-                    --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+                    --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
                     --header 'Content-Type: application/json' \
                     --data '{
-                      "name": "${{ env.API_PRODUCT_NAME }}",
+                      "name": "${{ vars.API_PRODUCT_NAME }}",
                       "description": "Creating through admin api",
                       "labels": {}
                     }' 
 
        - name: Get API product ID
          run: |
-            api_product_name="${{ env.API_PRODUCT_NAME }}"
+            api_product_name="${{ vars.API_PRODUCT_NAME }}"
             api_product_id=$(curl --request GET \
               --url https://us.api.konghq.com/v2/api-products \
-              --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+              --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
               | jq -r --arg api_product_name "$api_product_name" '.data[] | select(.name == $api_product_name) | .id // empty')
             
             if [ "$api_product_id" = "empty" ]; then
@@ -138,7 +148,7 @@ jobs:
          run: |
           Dev_portal_id=$(curl --request GET \
             --url https://us.api.konghq.com/v2/portals \
-            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r '.data[].id')
               echo "DEV_PORTAL_ID=$Dev_portal_id" >> $GITHUB_ENV
 
@@ -148,7 +158,7 @@ jobs:
            echo "Dev Portal ID: $DEV_PORTAL_ID"
            curl --request PATCH \
             --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID \
-            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
             --data "{
               \"portal_ids\":[\"$DEV_PORTAL_ID\"]
@@ -159,7 +169,7 @@ jobs:
           echo "API Product ID: $API_PRODUCT_ID"
           api_product_version_id=$(curl --request POST \
             --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions \
-            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
             --data '{
               "name": "v1",
@@ -167,24 +177,23 @@ jobs:
               "gateway_service": null
             }'| jq -r '.id')
               echo "API_Product_Version_ID=$api_product_version_id" >> $GITHUB_ENV
-              echo $api_product_version_id
               echo "API Product Version ID: $API_Product_Version_ID"
         
 
        - name: Get Control Plane ID
          run: |
-             control_plane_name="${{ env.CONTROL_PLANE_NAME }}"
+             control_plane_name="${{ vars.CONTROL_PLANE_NAME }}"
              control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes' \
-             --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
              | jq -r --arg control_plane_name "$control_plane_name" '.data[] | select(.name == $control_plane_name) | .id')
              echo "Control_Plane_ID=$control_plane_id" >> $GITHUB_ENV
 
        - name: Get Service ID
          run: |
           echo "Control Plane Id: $Control_Plane_ID"
-          gateway_service_name="${{ env.GATEWAY_SERVICE_NAME }}"
+          gateway_service_name="${{ vars.GATEWAY_SERVICE_NAME }}"
           service_id=$(curl --location "https://us.api.konghq.com/v2/control-planes/$Control_Plane_ID/core-entities/services" \
-            --header 'Authorization: spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r --arg gateway_service_name "$gateway_service_name" '.data[] | select(.name == $gateway_service_name) | .id')
           echo "Service_ID=$service_id" >> $GITHUB_ENV
 
@@ -195,56 +204,26 @@ jobs:
           echo "Service ID: $Service_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
           curl --location --request PATCH "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID" \
-                --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+                --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
                 --header 'Content-Type: application/json' \
-                --data '{
-                              "name": "v1",
-                              "publish_status": "published",
-                              "deprecated": false,
-                              "notify": true,
-                              "gateway_service": {
-                                "control_plane_id": "c06af6a4-a722-45d6-b084-9bb5f9bdb9eb",
-                                "id": "70001cc2-2634-5cc0-aea6-9d86fecbc8cb"
-                              }
-                            }'
+                --data "{
+                        \"name\": \"v1\",
+                        \"publish_status\": \"published\",
+                        \"deprecated\": false,
+                        \"notify\": true,
+                        \"gateway_service\": {
+                        \"control_plane_id\": \"$Control_Plane_ID\",
+                        \"id\": \"$Service_ID\"
+                                }
+                       }"
        - name: Upload spec on the version
          run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
           curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
-            --header 'Authorization: Bearer spat_cbdDxuiAWLhjGVnKneiSOxz10au8pPqKmx6hL22cgNtheJLeA' \
+            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
             --data '{
-              "name": "test.yaml",
-              "content": "b3BlbmFwaTogMy4wLjAKaW5mbzoKICB0aXRsZTogTXlTZXJ2aWNlIEFQSQogIHZlcnNpb246IDEuMC4wCnNlcnZlcnM6CiAgLSB1cmw6IGh0dHBzOi8vaHR0cGJpbi5vcmcKcGF0aHM6CiAgL2lwOgogICAgZ2V0OgogICAgICBvcGVyYXRpb25JZDogZ2V0SXBBZGRyZXNzCiAgICAgIHN1bW1hcnk6IEdldCBJUCBBZGRyZXNzCiAgICAgIHJlc3BvbnNlczoKICAgICAgICAnMjAwJzoKICAgICAgICAgIGRlc2NyaXB0aW9uOiBPSw=="
+              "name": "student.yaml",
+              "content": "LS0tCm9wZW5hcGk6IDMuMC4wCmluZm86CiAgdGl0bGU6IFN0dWRlbnQgSW5mb3JtYXRpb24gQVBJCiAgZGVzY3JpcHRpb246ICIjIyBTdHVkZW50IGluZm9ybWF0aW9uIEFQSSAiCiAgY29udGFjdDoKICAgIGVtYWlsOiBpbnRlZ3JhdGlvbnRlYW1Ac2hlZmZpZWxkLmFjLnVrCiAgdmVyc2lvbjogMC4wLjEKc2VydmVyczoKICAtIHVybDogaHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20vdjEKdGFnczoKICAtIG5hbWU6IEdldFN0dWRlbnRzCiAgICBkZXNjcmlwdGlvbjogR2V0IFN0dWRlbnRzIEluZm9ybWF0aW9uCnBhdGhzOgogIC9zdHVkZW50czoKICAgIGdldDoKICAgICAgdGFnczoKICAgICAgICAtIEdldFN0dWRlbnRzCiAgICAgIHN1bW1hcnk6IFJldHJpZXZlIHN0dWRlbnQgaW5mb3JtYXRpb24KICAgICAgZGVzY3JpcHRpb246IFJldHVybnMgYSBsaXN0IG9mIHN0dWRlbnQgaW5mb3JtYXRpb24uCiAgICAgIG9wZXJhdGlvbklkOiBnZXRTdHVkZW50cwogICAgICBwYXJhbWV0ZXJzOgogICAgICAgIC0gJHJlZjogIiMvY29tcG9uZW50cy9wYXJhbWV0ZXJzL0F1dGhvcml6YXRpb25IZWFkZXIiCiAgICAgICAgLSAkcmVmOiAiIy9jb21wb25lbnRzL3BhcmFtZXRlcnMvQ29udGVudFR5cGVIZWFkZXIiCiAgICAgICAgLSAkcmVmOiAiIy9jb21wb25lbnRzL3BhcmFtZXRlcnMvQ29ycmVsYXRpb25JZEhlYWRlciIKICAgICAgICAtICRyZWY6ICIjL2NvbXBvbmVudHMvcGFyYW1ldGVycy9SZXF1ZXN0SWRIZWFkZXIiCiAgICAgICAgLSAkcmVmOiAiIy9jb21wb25lbnRzL3BhcmFtZXRlcnMvVGltZXN0YW1wSGVhZGVyIgogICAgICAgIC0gJHJlZjogIiMvY29tcG9uZW50cy9wYXJhbWV0ZXJzL1Rlc3RIZWFkZXIiCiAgICAgICAgLSBuYW1lOiBzdHVkZW50Q29kZQogICAgICAgICAgaW46IHF1ZXJ5CiAgICAgICAgICBkZXNjcmlwdGlvbjogRmllbGRzIHRvIGluY2x1ZGUgaW4gdGhlIHJlc3BvbnNlCiAgICAgICAgICByZXF1aXJlZDogdHJ1ZQogICAgICAgICAgc2NoZW1hOgogICAgICAgICAgICB0eXBlOiBzdHJpbmcKICAgICAgICAgIGV4YW1wbGU6IHN1cm5hbWUsZW5yb2xsbWVudC5wcm9ncmFtbWUsIHByb2dyYW1tZQogICAgICAgIC0gbmFtZTogcmVnaXN0cmF0aW9uTnVtYmVyCiAgICAgICAgICBpbjogcXVlcnkKICAgICAgICAgIGRlc2NyaXB0aW9uOiBTdHVkZW50IHJlZ2lzdHJhdGlvbiBudW1iZXIKICAgICAgICAgIHJlcXVpcmVkOiB0cnVlCiAgICAgICAgICBzY2hlbWE6CiAgICAgICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgICAgZXhhbXBsZTogMTEyMgogICAgICAgIC0gbmFtZTogcmVnaXN0cmF0aW9uU3RhdHVzCiAgICAgICAgICBpbjogcXVlcnkKICAgICAgICAgIGRlc2NyaXB0aW9uOiBzdHVkZW50IHJlZ2lzdHJhdGlvbiBzdGF0dXMKICAgICAgICAgIHJlcXVpcmVkOiB0cnVlCiAgICAgICAgICBzY2hlbWE6CiAgICAgICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgICAgZXhhbXBsZTogYWN0aXZlCiAgICAgICAgLSBuYW1lOiBmaWVsZHMKICAgICAgICAgIGluOiBxdWVyeQogICAgICAgICAgZGVzY3JpcHRpb246IEZpZWxkcyB0byBpbmNsdWRlIGluIHRoZSByZXNwb25zZSwgY3VycmVudGx5IG5vdCB1c2VkLgogICAgICAgICAgcmVxdWlyZWQ6IGZhbHNlCiAgICAgICAgICBzY2hlbWE6CiAgICAgICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgICAgZXhhbXBsZTogc3VybmFtZSxlbnJvbGxtZW50LnByb2dyYW1tZSwgcHJvZ3JhbW1lCiAgICAgIHJlc3BvbnNlczoKICAgICAgICAiMjAwIjoKICAgICAgICAgIGRlc2NyaXB0aW9uOiBBIGxpc3Qgb2Ygc3R1ZGVudCBpbmZvcm1hdGlvbi4KICAgICAgICAgIGNvbnRlbnQ6CiAgICAgICAgICAgIGFwcGxpY2F0aW9uL2pzb246CiAgICAgICAgICAgICAgc2NoZW1hOgogICAgICAgICAgICAgICAgdHlwZTogYXJyYXkKICAgICAgICAgICAgICAgIGl0ZW1zOgogICAgICAgICAgICAgICAgICAkcmVmOiAiIy9jb21wb25lbnRzL3NjaGVtYXMvU3R1ZGVudCIKICAgICAgICAiNDAwIjoKICAgICAgICAgIGRlc2NyaXB0aW9uOiBCYWQgcmVxdWVzdAogICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjoKICAgICAgICAgICAgICBzY2hlbWE6CiAgICAgICAgICAgICAgICAkcmVmOiAiIy9jb21wb25lbnRzL3NjaGVtYXMvRXJyb3I0MDAiCiAgICAgICAgIjQwMSI6CiAgICAgICAgICBkZXNjcmlwdGlvbjogVW5hdXRob3JpemVkCiAgICAgICAgICBjb250ZW50OgogICAgICAgICAgICBhcHBsaWNhdGlvbi9qc29uOgogICAgICAgICAgICAgIHNjaGVtYToKICAgICAgICAgICAgICAgICRyZWY6ICIjL2NvbXBvbmVudHMvc2NoZW1hcy9FcnJvcjQwMSIKICAgICAgICAiNDAzIjoKICAgICAgICAgIGRlc2NyaXB0aW9uOiBGb3JiaWRkZW4KICAgICAgICAgIGNvbnRlbnQ6CiAgICAgICAgICAgIGFwcGxpY2F0aW9uL2pzb246CiAgICAgICAgICAgICAgc2NoZW1hOgogICAgICAgICAgICAgICAgJHJlZjogIiMvY29tcG9uZW50cy9zY2hlbWFzL0Vycm9yNDAzIgogICAgICAgICI1MDAiOgogICAgICAgICAgZGVzY3JpcHRpb246IEludGVybmFsIFNlcnZlciBFcnJvcgogICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjoKICAgICAgICAgICAgICBzY2hlbWE6CiAgICAgICAgICAgICAgICAkcmVmOiAiIy9jb21wb25lbnRzL3NjaGVtYXMvRXJyb3I1MDAiCiAgICAgIHNlY3VyaXR5OgogICAgICAgIC0gYmVhcmVyQXV0aDoKICAgICAgICAgICAgLSB1b3Mvc3R1ZGVudC1yZWFkCiAgICAgICAgICAgIC0gdW9zL3N0dWRlbnQtcmVhZC1hbGwKICAgICAgICAtIGFwaUtleTogW10KY29tcG9uZW50czoKICBzY2hlbWFzOgogICAgU3R1ZGVudDoKICAgICAgdHlwZTogb2JqZWN0CiAgICAgIHByb3BlcnRpZXM6CiAgICAgICAgdGl0bGU6CiAgICAgICAgICB0eXBlOiBpbnRlZ2VyCiAgICAgICAgICBkZXNjcmlwdGlvbjogVGhlIHN0dWRlbnQncyBJRC4KICAgICAgICAgIGV4YW1wbGU6IDEyMwogICAgICAgIGZvcmVuYW1lOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogVGhlIHN0dWRlbnQncyBmb3JlbmFtZS4KICAgICAgICAgIGV4YW1wbGU6IEFsaWNlCiAgICAgICAga25vd25hczoKICAgICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgICAgZGVzY3JpcHRpb246IFRoZSBzdHVkZW50J3Mga25vd25hcyBuYW1lLgogICAgICAgICAgZXhhbXBsZTogSm9obgogICAgICAgIGxhc3RuYW1lOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogVGhlIHN0dWRlbnQncyBrbm93bmFzIG5hbWUuCiAgICAgICAgICBleGFtcGxlOiBKb2huCiAgICAgICAgdW5pdmVyc2l0eUVtYWlsOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBmb3JtYXQ6IGVtYWlsCiAgICAgICAgICBkZXNjcmlwdGlvbjogVGhlIHN0dWRlbnQncyB1bml2ZXJzaXR5IGVtYWlsLgogICAgICAgICAgZXhhbXBsZTogYWxpY2Uuc21pdGhAdW5pdmVyc2l0eS5lZHUKICAgICAgICBydkRvbWFpbjoKICAgICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgICAgZGVzY3JpcHRpb246IFRoZSBzdHVkZW50J3MgZG9tYWluLgogICAgICAgICAgZXhhbXBsZTogUkVHX1NUQVRVU19HUlBfQVRUCiAgICBFcnJvcjQwMDoKICAgICAgdHlwZTogb2JqZWN0CiAgICAgIHJlcXVpcmVkOgogICAgICAgIC0gY29kZQogICAgICAgIC0gZGVzY3JpcHRpb24KICAgICAgICAtIG1lc3NhZ2UKICAgICAgICAtIHNvdXJjZQogICAgICAgIC0gdHlwZQogICAgICBwcm9wZXJ0aWVzOgogICAgICAgIGNvZGU6CiAgICAgICAgICB0eXBlOiBudW1iZXIKICAgICAgICAgIGRlc2NyaXB0aW9uOiA1IGRpZ2l0IGVycm9yIG1lc3NhZ2UgY29kZQogICAgICAgICAgZXhhbXBsZTogMTAwMDAKICAgICAgICAgIGVudW06CiAgICAgICAgICAgIC0gMTAwMDAKICAgICAgICBkZXNjcmlwdGlvbjoKICAgICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgICAgZGVzY3JpcHRpb246IERlc2NyaXB0aW9uIGZvciB0aGUgNSBkaWdpdCAgbWVzc2FnZSBjb2RlLgogICAgICAgICAgZXhhbXBsZTogUmVxdWlyZWQgZmllbGRzIGFyZSBtaXNzaW5nIG9yIGludmFsaWQgZGF0YSBzcGVjaWZpZWQgaW4gdGhlIHJlcXVlc3QuCiAgICAgICAgICAgIFBsZWFzZSByZWZlciB0byB0aGUgQVBJIGRvY3VtZW50YXRpb24gZm9yIG1vcmUgZGV0YWlscy4KICAgICAgICBzb3VyY2U6CiAgICAgICAgICB0eXBlOiBzdHJpbmcKICAgICAgICAgIGRlc2NyaXB0aW9uOiBTb3VyY2Ugb2YgdGhlIG1lc3NhZ2UKICAgICAgICAgIGV4YW1wbGU6IE1pZGRsZXdhcmUKICAgICAgICAgIGVudW06CiAgICAgICAgICAgIC0gQmFja2VuZAogICAgICAgICAgICAtIE1pZGRsZXdhcmUKICAgICAgICBtZXNzYWdlOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogQW55IG1lc3NhZ2UgZm9yIHRoZSBjb25zdW1pbmcgc3lzdGVtIGZvciB1c2UgaW4gVUkgb3IgaW4gdGhlCiAgICAgICAgICAgIGFwcGxpY2F0aW9uCiAgICAgICAgICBleGFtcGxlOiBJbnZhbGlkIEpTT04KICAgICAgICB0eXBlOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogVHlwZSBvZiB0aGUgbWVzc2FnZQogICAgICAgICAgZXhhbXBsZTogVmFsaWRhdGlvbgogICAgICAgICAgZW51bToKICAgICAgICAgICAgLSBTeXN0ZW0KICAgICAgICAgICAgLSBCdXNpbmVzcwogICAgICAgICAgICAtIFZhbGlkYXRpb24KICAgIEVycm9yNDAxOgogICAgICB0eXBlOiBvYmplY3QKICAgICAgcmVxdWlyZWQ6CiAgICAgICAgLSBtZXNzYWdlCiAgICAgICAgLSBodHRwX3N0YXR1c19jb2RlCiAgICAgIHByb3BlcnRpZXM6CiAgICAgICAgbWVzc2FnZToKICAgICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgICAgZGVzY3JpcHRpb246IEFueSBtZXNzYWdlIGZvciB0aGUgY29uc3VtaW5nIHN5c3RlbSBmb3IgdXNlIGluIFVJIG9yIGluIHRoZQogICAgICAgICAgICBhcHBsaWNhdGlvbgogICAgICAgICAgZXhhbXBsZTogVW5hdXRob3JpemVkIC0gRXhwaXJlZCBUb2tlbi4KICAgICAgICBodHRwX3N0YXR1c19jb2RlOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogSFRUUCByZXNwb25zZSBjb2RlCiAgICAgICAgICBleGFtcGxlOiAiNDAxIgogICAgRXJyb3I0MDM6CiAgICAgIHR5cGU6IG9iamVjdAogICAgICByZXF1aXJlZDoKICAgICAgICAtIG1lc3NhZ2UKICAgICAgICAtIGh0dHBfc3RhdHVzX2NvZGUKICAgICAgcHJvcGVydGllczoKICAgICAgICBtZXNzYWdlOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogQW55IG1lc3NhZ2UgZm9yIHRoZSBjb25zdW1pbmcgc3lzdGVtIGZvciB1c2UgaW4gVUkgb3IgaW4gdGhlCiAgICAgICAgICAgIGFwcGxpY2F0aW9uCiAgICAgICAgICBleGFtcGxlOiBBUEkgS2V5IGlzIG5vdCB2YWxpZCBvciBpcyBleHBpcmVkIC8gcmV2b2tlZC4KICAgICAgICBodHRwX3N0YXR1c19jb2RlOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogSFRUUCByZXNwb25zZSBjb2RlCiAgICAgICAgICBleGFtcGxlOiAiNDAzIgogICAgRXJyb3I1MDA6CiAgICAgIHR5cGU6IG9iamVjdAogICAgICByZXF1aXJlZDoKICAgICAgICAtIGNvZGUKICAgICAgICAtIGRlc2NyaXB0aW9uCiAgICAgICAgLSBtZXNzYWdlCiAgICAgICAgLSBzb3VyY2UKICAgICAgICAtIHR5cGUKICAgICAgcHJvcGVydGllczoKICAgICAgICBjb2RlOgogICAgICAgICAgdHlwZTogbnVtYmVyCiAgICAgICAgICBkZXNjcmlwdGlvbjogNSBkaWdpdCAgbWVzc2FnZSBjb2RlCiAgICAgICAgICBleGFtcGxlOiAyMDAwMAogICAgICAgICAgZW51bToKICAgICAgICAgICAgLSAyMDAwMAogICAgICAgIGRlc2NyaXB0aW9uOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogRGVzY3JpcHRpb24gZm9yIHRoZSA1IGRpZ2l0ICBtZXNzYWdlIGNvZGUuCiAgICAgICAgICBleGFtcGxlOiBJbnRlcm5hbCBTZXJ2ZXIgRXJyb3IKICAgICAgICBzb3VyY2U6CiAgICAgICAgICB0eXBlOiBzdHJpbmcKICAgICAgICAgIGRlc2NyaXB0aW9uOiBTb3VyY2Ugb2YgdGhlIG1lc3NhZ2UKICAgICAgICAgIGV4YW1wbGU6IEJhY2tlbmQKICAgICAgICAgIGVudW06CiAgICAgICAgICAgIC0gQmFja2VuZAogICAgICAgICAgICAtIE1pZGRsZXdhcmUKICAgICAgICBtZXNzYWdlOgogICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICBkZXNjcmlwdGlvbjogQW55IG1lc3NhZ2UgZm9yIHRoZSBjb25zdW1pbmcgc3lzdGVtIGZvciB1c2UgaW4gVUkgb3IgaW4gdGhlCiAgICAgICAgICAgIGFwcGxpY2F0aW9uCiAgICAgICAgdHlwZToKICAgICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgICAgZGVzY3JpcHRpb246IFR5cGUgb2YgdGhlIG1lc3NhZ2UKICAgICAgICAgIGV4YW1wbGU6IFN5c3RlbQogICAgICAgICAgZW51bToKICAgICAgICAgICAgLSBTeXN0ZW0KICAgICAgICAgICAgLSBCdXNpbmVzcwogICAgICAgICAgICAtIFZhbGlkYXRpb24KICBwYXJhbWV0ZXJzOgogICAgQXV0aG9yaXphdGlvbkhlYWRlcjoKICAgICAgbmFtZTogQXV0aG9yaXphdGlvbgogICAgICBpbjogaGVhZGVyCiAgICAgIHJlcXVpcmVkOiB0cnVlCiAgICAgIHNjaGVtYToKICAgICAgICB0eXBlOiBzdHJpbmcKICAgICAgICBkZXNjcmlwdGlvbjogQmVhcmVyIHRva2VuIGZvciBhdXRoZW50aWNhdGlvbgogICAgQ29udGVudFR5cGVIZWFkZXI6CiAgICAgIG5hbWU6IENvbnRlbnQtVHlwZQogICAgICBpbjogaGVhZGVyCiAgICAgIHJlcXVpcmVkOiB0cnVlCiAgICAgIHNjaGVtYToKICAgICAgICB0eXBlOiBzdHJpbmcKICAgICAgICBkZWZhdWx0OiBhcHBsaWNhdGlvbi9qc29uCiAgICAgICAgZW51bToKICAgICAgICAgIC0gYXBwbGljYXRpb24vanNvbgogICAgICAgICAgLSBhcHBsaWNhdGlvbi94bWwKICAgIENvcnJlbGF0aW9uSWRIZWFkZXI6CiAgICAgIG5hbWU6IHgtdW9zLWNvcnJlbGF0aW9uLWlkCiAgICAgIGluOiBoZWFkZXIKICAgICAgcmVxdWlyZWQ6IHRydWUKICAgICAgc2NoZW1hOgogICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgIGRlc2NyaXB0aW9uOiBBIHVuaXF1ZSBpZGVudGlmaWVyIHVzZWQgYnkgY29uc3VtZXJzIG9yIHdpdGhpbiB0aGUgbWljcm9zZXJ2aWNlcwogICAgICAgICAgbGF5ZXIgaW4gYSBidXNpbmVzcyBwcm9jZXNzIGpvdXJuZXkuCiAgICBSZXF1ZXN0SWRIZWFkZXI6CiAgICAgIG5hbWU6IHgtdW9zLXJlcXVlc3QtaWQKICAgICAgaW46IGhlYWRlcgogICAgICByZXF1aXJlZDogdHJ1ZQogICAgICBzY2hlbWE6CiAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgZGVzY3JpcHRpb246IEEgdW5pcXVlIGlkZW50aWZpZXIgZm9yIHRoZSBBUEkgcmVxdWVzdC4KICAgIFRpbWVzdGFtcEhlYWRlcjoKICAgICAgbmFtZTogeC11b3MtdGltZXN0YW1wCiAgICAgIGluOiBoZWFkZXIKICAgICAgcmVxdWlyZWQ6IHRydWUKICAgICAgc2NoZW1hOgogICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgIGRlc2NyaXB0aW9uOiBUaW1lc3RhbXAgZm9yIHdoZW4gdGhlIEFQSSByZXF1ZXN0IHdhcyBtYWRlLgogICAgICAgIGZvcm1hdDogZGF0ZS10aW1lCiAgICBUZXN0SGVhZGVyOgogICAgICBuYW1lOiB4LXVvcy10ZXN0CiAgICAgIGluOiBoZWFkZXIKICAgICAgcmVxdWlyZWQ6IHRydWUKICAgICAgc2NoZW1hOgogICAgICAgIHR5cGU6IHN0cmluZwogICAgICAgIGRlc2NyaXB0aW9uOiBJbmRpY2F0ZXMgd2hldGhlciB0aGUgQVBJIHJlcXVlc3QgaXMgYSB0ZXN0IG9yIGEgbGl2ZSByZXF1ZXN0LgogICAgICAgIGVudW06CiAgICAgICAgICAtIHRlc3QKICAgICAgICAgIC0gbGl2ZQogICAgICAgICAgLSBzYW5kYm94CiAgICAgICAgICAtIHByb2R1Y3Rpb24KICBzZWN1cml0eVNjaGVtZXM6CiAgICBiZWFyZXJBdXRoOgogICAgICB0eXBlOiBvYXV0aDIKICAgICAgZmxvd3M6CiAgICAgICAgaW1wbGljaXQ6CiAgICAgICAgICBhdXRob3JpemF0aW9uVXJsOiBodHRwczovL2V4YW1wbGUuY29tL29hdXRoMi9hdXRob3JpemUKICAgICAgICAgIHNjb3BlczoKICAgICAgICAgICAgdW9zL3N0dWRlbnQtcmVhZDogUmVhZCBzdHVkZW50IGluZm9ybWF0aW9uCiAgICAgICAgICAgIHVvcy9zdHVkZW50LXJlYWQtYWxsOiBSZWFkIGFsbCBzdHVkZW50IGluZm9ybWF0aW9uCiAgICBhcGlLZXk6CiAgICAgIHR5cGU6IGFwaUtleQogICAgICBpbjogaGVhZGVyCiAgICAgIG5hbWU6IHgtYXBpLWtleQo="
             }'
-    
-  
-  
-          
-
-        
-
-   
-        
-   
-         
-    
-         
-
-     
- 
-
-
-    
-
-        
-
-   
-        
-   
-         
-    
-         
-
-     

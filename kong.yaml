@@ -1,0 +1,24 @@
+_format_version: "3.0"
+services:
+- host: httpbin.org
+  id: 70001cc2-2634-5cc0-aea6-9d86fecbc8cb
+  name: myservice-api
+  path: /
+  plugins: []
+  port: 443
+  protocol: https
+  routes:
+  - id: 3e42ff97-cd74-54ba-b00d-33819680f46f
+    methods:
+    - GET
+    name: myservice-api_getipaddress
+    paths:
+    - ~/ip$
+    plugins: []
+    regex_priority: 200
+    strip_path: false
+    tags:
+    - dev
+  tags:
+  - dev
+upstreams: []
