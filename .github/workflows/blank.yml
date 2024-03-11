@@ -1,18 +1,15 @@
-name: Kong API Gateway Workflow    
+---
+name: Kong API Gateway Workflow
 on:
   push:
     branches:
       - main
-
 jobs:
-
   OAS_TO_Kong:
-    runs-on: ubuntu-latest 
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-
       - name: Set Environment Variables
         run: |
           echo "KEY_AUTH_ENABLED=true" >> $GITHUB_ENV
@@ -22,60 +19,33 @@ jobs:
           echo "IP_RESTRICTION_ENABLED=true" >> $GITHUB_ENV
           echo "ACL_ENABLED=true" >> $GITHUB_ENV
           echo "OAS_VALIDATION_ENABLED=true" >> $GITHUB_ENV
-
         if: github.ref == 'refs/heads/main'
-
       - name: download jq
         run: |
           sudo apt install jq -y
           jq --version
-
       - name: download yq
         run: |
           sudo snap install yq
           yq --version
-
-
       - name: Install deck CLI
-        run: | 
-          curl -sL https://github.com/kong/deck/releases/download/v1.34.0/deck_1.34.0_linux_amd64.tar.gz -o deck.tar.gz
+        run: >
+          curl -sL
+          https://github.com/kong/deck/releases/download/v1.34.0/deck_1.34.0_linux_amd64.tar.gz
+          -o deck.tar.gz
+
           tar -xf deck.tar.gz -C /tmp 
+
           sudo cp /tmp/deck /usr/local/bin/
+
           deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
-
-      # - name: Key Auth Step
-      #   run: |
-      #     if [[ "${KEY_AUTH_ENABLED}" == true ]]; then
-      #       echo "Executing Key Auth Step"
-      #       # Your key auth commands or scripts here
-      #       sed -i '1d' keyauth.yaml
-      #     else
-      #       echo "Key Auth Step Skipped"
-      #     fi
-
-      # - name: request size limiting Step
-      #   run: |
-      #     if [[ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ]]; then
-      #       echo "request size limiting Step"
-      #       # Your request size limiting commands or scripts here
-      #       sed -i '1d' request-size-limiting.yaml
-      #     else
-      #       echo "request size limiting Step Skipped"
-      #     fi
-
-      # - name: Rate Limiting Step
-      #   run: |
-      #     if [[ "${RATE_LIMITING_ENABLED}" == "true" ]]; then
-      #       echo "Executing Rate Limiting Step"
-      #       # Your rate limiting commands or scripts here
-      #       sed -i '1d' ratelimiting.yaml
-      #     else
-      #       echo "Rate Limiting Step Skipped"
-      #     fi
-
       - name: Append Plugins to new-api.yaml
-        run: |
-            if [ "${KEY_AUTH_ENABLED}" == "true" ] && [ "${RATE_LIMITING_ENABLED}" == "true" ] && [ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ] && [ "${HTTP_LOG_ENABLED}" == "true" ] && [ "${IP_RESTRICTION_ENABLED}" == "true" ] && [ "${ACL_ENABLED}" == "true" ] && [ "${OAS_VALIDATION_ENABLED}" == "true" ]; then
+        run: >
+          if [ "${KEY_AUTH_ENABLED}" == "true" ] && [ "${RATE_LIMITING_ENABLED}" ==
+          "true" ] && [ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ] && [
+          "${HTTP_LOG_ENABLED}" == "true" ] && [ "${IP_RESTRICTION_ENABLED}" ==
+          "true" ] && [ "${ACL_ENABLED}" == "true" ] && [
+          "${OAS_VALIDATION_ENABLED}" == "true" ]; then
              sed -i '1,2d' ratelimiting.yaml
              sed -i '1,2d' acl.yaml
              sed -i '1,2d' http-log.yaml
@@ -89,83 +59,73 @@ jobs:
              echo $plugins
              cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
-           fi
-
-
+          fi
       - name: Set headers and run deck sync
-        run: |  
-              cat modified-api.yaml
-              # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
-              deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name Transit-testing
+        run: >
+          cat modified-api.yaml
 
-      
-  publish-customer-api-to-portal:  # Publish the API to the dev portal
-  
+          # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
+
+          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name Transit-testing
+  publish-customer-api-to-portal:
     name: Publish OAS to dev portal
-
-    needs: OAS_TO_Kong   # Make sure the completed before running this job
-
-    runs-on: ubuntu-latest  # Use Ubuntu as the operating system for the job
-
+    needs: OAS_TO_Kong
+    runs-on: ubuntu-latest
     steps:
-
-      
-       - name: Fech environment variables
-         id: set_env_vars
-         run: |
+      - name: Fech environment variables
+        id: set_env_vars
+        run: |
           echo "API_PRODUCT_NAME: ${{ vars.API_PRODUCT_NAME }}"
           echo "CONTROL_PLANE_NAME: ${{ vars.CONTROL_PLANE_NAME }}" 
           echo "GATEWAY_SERVICE_NAME: ${{ vars.GATEWAY_SERVICE_NAME }}" 
+      - name: Create API product
+        run: |
+          curl --request POST \
+            --url https://us.api.konghq.com/v2/api-products \
+            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "name": "${{ vars.API_PRODUCT_NAME }}",
+              "description": "Creating through admin api",
+              "labels": {}
+            }' 
+      - name: Get API product ID
+        run: >
+          api_product_name="${{ vars.API_PRODUCT_NAME }}"
 
-       - name: Create API product
-         run: |
-                  curl --request POST \
-                    --url https://us.api.konghq.com/v2/api-products \
-                    --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
-                    --header 'Content-Type: application/json' \
-                    --data '{
-                      "name": "${{ vars.API_PRODUCT_NAME }}",
-                      "description": "Creating through admin api",
-                      "labels": {}
-                    }' 
+          api_product_id=$(curl --request GET \
+            --url https://us.api.konghq.com/v2/api-products \
+            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
+            | jq -r --arg api_product_name "$api_product_name" '.data[] | select(.name == $api_product_name) | .id // empty')
 
-       - name: Get API product ID
-         run: |
-            api_product_name="${{ vars.API_PRODUCT_NAME }}"
-            api_product_id=$(curl --request GET \
-              --url https://us.api.konghq.com/v2/api-products \
-              --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
-              | jq -r --arg api_product_name "$api_product_name" '.data[] | select(.name == $api_product_name) | .id // empty')
-            
-            if [ "$api_product_id" = "empty" ]; then
-              echo "Error: API Product ID not found."
-              exit 1
-            fi
-            echo "API_PRODUCT_ID=$api_product_id" >> $GITHUB_ENV 
+          if [ "$api_product_id" = "empty" ]; then
+            echo "Error: API Product ID not found."
+            exit 1
+          fi
 
-       - name: Get Dev Portal ID
-         run: |
+          echo "API_PRODUCT_ID=$api_product_id" >> $GITHUB_ENV 
+      - name: Get Dev Portal ID
+        run: |
           Dev_portal_id=$(curl --request GET \
             --url https://us.api.konghq.com/v2/portals \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r '.data[].id')
               echo "DEV_PORTAL_ID=$Dev_portal_id" >> $GITHUB_ENV
-
-       - name: Publish product to the dev portal
-         run: |
-           echo "API Product ID: $API_PRODUCT_ID"
-           echo "Dev Portal ID: $DEV_PORTAL_ID"
-           curl --request PATCH \
-            --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID \
-            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
-            --header 'Content-Type: application/json' \
-            --data "{
-              \"portal_ids\":[\"$DEV_PORTAL_ID\"]
-            }"
-
-       - name: Create the product version
-         run: |
+      - name: Publish product to the dev portal
+        run: |
           echo "API Product ID: $API_PRODUCT_ID"
+          echo "Dev Portal ID: $DEV_PORTAL_ID"
+          curl --request PATCH \
+           --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID \
+           --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
+           --header 'Content-Type: application/json' \
+           --data "{
+             \"portal_ids\":[\"$DEV_PORTAL_ID\"]
+           }"
+      - name: Create the product version
+        run: >
+          echo "API Product ID: $API_PRODUCT_ID"
+
           api_product_version_id=$(curl --request POST \
             --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
@@ -177,31 +137,37 @@ jobs:
             }'| jq -r '.id')
               echo "API_Product_Version_ID=$api_product_version_id" >> $GITHUB_ENV
               echo "API Product Version ID: $API_Product_Version_ID"
-        
+      - name: Get Control Plane ID
+        run: >
+          control_plane_name="${{ vars.CONTROL_PLANE_NAME }}"
 
-       - name: Get Control Plane ID
-         run: |
-             control_plane_name="${{ vars.CONTROL_PLANE_NAME }}"
-             control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes' \
-             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
-             | jq -r --arg control_plane_name "$control_plane_name" '.data[] | select(.name == $control_plane_name) | .id')
-             echo "Control_Plane_ID=$control_plane_id" >> $GITHUB_ENV
+          control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes' \
 
-       - name: Get Service ID
-         run: |
+          --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
+
+          | jq -r --arg control_plane_name "$control_plane_name" '.data[] | select(.name == $control_plane_name) | .id')
+
+          echo "Control_Plane_ID=$control_plane_id" >> $GITHUB_ENV
+      - name: Get Service ID
+        run: >
           echo "Control Plane Id: $Control_Plane_ID"
+
           gateway_service_name="${{ vars.GATEWAY_SERVICE_NAME }}"
+
           service_id=$(curl --location "https://us.api.konghq.com/v2/control-planes/$Control_Plane_ID/core-entities/services" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r --arg gateway_service_name "$gateway_service_name" '.data[] | select(.name == $gateway_service_name) | .id')
           echo "Service_ID=$service_id" >> $GITHUB_ENV
-
-       - name: Link service to the product version 
-         run: |
+      - name: Link service to the product version
+        run: >
           echo "API PRODUCT ID: $API_PRODUCT_ID"
+
           echo "Control Plane ID: $Control_Plane_ID"
+
           echo "Service ID: $Service_ID"
+
           echo "API Product Version ID: $API_Product_Version_ID"
+
           curl --location --request PATCH "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID" \
                 --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
                 --header 'Content-Type: application/json' \
@@ -215,10 +181,12 @@ jobs:
                         \"id\": \"$Service_ID\"
                                 }
                        }"
-       - name: Upload spec on the version
-         run: |
+      - name: Upload spec on the version
+        run: >
           echo "API PRODUCT ID: $API_PRODUCT_ID"
+
           echo "API Product Version ID: $API_Product_Version_ID"
+
           curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
