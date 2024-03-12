@@ -16,6 +16,7 @@ jobs:
 
       - name: download jq
         run: |
+          cat student.yaml
           sudo apt install jq -y
           jq --version
       - name: download yq
