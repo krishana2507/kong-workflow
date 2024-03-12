@@ -41,15 +41,7 @@ jobs:
           "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
           "true" ] || [ "${{ vars.CORRELATION_ID }}" ==
           "true" ]; then
-             sed -i '1,2d' ratelimiting.yaml acl.yaml http-log.yaml
-            #  sed -i '1,2d' acl.yaml
-            #  sed -i '1,2d' http-log.yaml
-             sed -i '1,2d' request-size-limiting.yaml
-             sed -i '1,2d' ip-restriction.yaml
-             sed -i '1,2d' oas-validation.yaml
-             sed -i '1,2d' correlation.yaml
-             sed -i '1,2d' open-id.yaml
-
+             sed -i '1,2d' ratelimiting.yaml acl.yaml http-log.yaml request-size-limiting.yaml ip-restriction.yaml oas-validation.yaml correlation.yaml open-id.yaml
              sed -i '1d' keyauth.yaml
              cat keyauth.yaml ratelimiting.yaml request-size-limiting.yaml acl.yaml http-log.yaml  ip-restriction.yaml oas-validation.yaml correlation.yaml open-id.yaml > combined-plugins.yaml
              cat combined-plugins.yaml
