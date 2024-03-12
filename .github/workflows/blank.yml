@@ -58,7 +58,7 @@ jobs:
              cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
-      - name: Set headers and run deck sync
+      - name: set headers and run deck sync
         run: >
           cat modified-api.yaml
 
