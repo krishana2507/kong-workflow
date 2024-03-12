@@ -202,5 +202,5 @@ jobs:
             --header 'Content-Type: application/json' \
             --data '{
               "name": "student.yaml",
-              "content": "'"$encoded_spec"'"
+              "content": $encoded_spec
             }'
