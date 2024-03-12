@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+
       - name: Check head on main or not
         run: |
         if: github.ref == 'refs/heads/main'
@@ -18,10 +19,12 @@ jobs:
         run: |
           sudo apt install jq -y
           jq --version
+
       - name: download yq
         run: |
           sudo snap install yq
           yq --version
+
       - name: Install deck CLI
         run: >
           curl -sL
@@ -33,6 +36,7 @@ jobs:
           sudo cp /tmp/deck /usr/local/bin/
 
           deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
+
       - name: Append Plugins to new-api.yaml
         run: >
           if [ "${{ vars.KEY_AUTH }}" == "true" ] || [ "${{ vars.RATE_LIMITING }}" ==
@@ -51,6 +55,7 @@ jobs:
              cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
+
       - name: Set headers and run deck sync
         run: >
           cat modified-api.yaml
@@ -66,13 +71,14 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+
       - name: Fech environment variables
         id: set_env_vars
         run: |
-          cat student.yaml
           echo "API_PRODUCT_NAME: ${{ vars.API_PRODUCT_NAME }}"
           echo "CONTROL_PLANE_NAME: ${{ vars.CONTROL_PLANE_NAME }}" 
           echo "GATEWAY_SERVICE_NAME: ${{ vars.GATEWAY_SERVICE_NAME }}" 
+
       - name: Create API product
         run: |
           curl --request POST \
@@ -84,6 +90,7 @@ jobs:
               "description": "Creating through admin api",
               "labels": {}
             }' 
+
       - name: Get API product ID
         run: >
           api_product_name="${{ vars.API_PRODUCT_NAME }}"
@@ -99,6 +106,7 @@ jobs:
           fi
 
           echo "API_PRODUCT_ID=$api_product_id" >> $GITHUB_ENV 
+
       - name: Get Dev Portal ID
         run: |
           Dev_portal_id=$(curl --request GET \
@@ -106,6 +114,7 @@ jobs:
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r '.data[].id')
               echo "DEV_PORTAL_ID=$Dev_portal_id" >> $GITHUB_ENV
+
       - name: Publish product to the dev portal
         run: |
           echo "API Product ID: $API_PRODUCT_ID"
@@ -117,6 +126,7 @@ jobs:
            --data "{
              \"portal_ids\":[\"$DEV_PORTAL_ID\"]
            }"
+
       - name: Create the product version
         run: >
           echo "API Product ID: $API_PRODUCT_ID"
@@ -132,6 +142,7 @@ jobs:
             }'| jq -r '.id')
               echo "API_Product_Version_ID=$api_product_version_id" >> $GITHUB_ENV
               echo "API Product Version ID: $API_Product_Version_ID"
+
       - name: Get Control Plane ID
         run: >
           control_plane_name="${{ vars.CONTROL_PLANE_NAME }}"
@@ -143,6 +154,7 @@ jobs:
           | jq -r --arg control_plane_name "$control_plane_name" '.data[] | select(.name == $control_plane_name) | .id')
 
           echo "Control_Plane_ID=$control_plane_id" >> $GITHUB_ENV
+
       - name: Get Service ID
         run: >
           echo "Control Plane Id: $Control_Plane_ID"
@@ -153,6 +165,7 @@ jobs:
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r --arg gateway_service_name "$gateway_service_name" '.data[] | select(.name == $gateway_service_name) | .id')
           echo "Service_ID=$service_id" >> $GITHUB_ENV
+
       - name: Link service to the product version
         run: >
           echo "API PRODUCT ID: $API_PRODUCT_ID"
@@ -176,11 +189,13 @@ jobs:
                         \"id\": \"$Service_ID\"
                                 }
                        }"
+
       - name: Upload spec on the version
         run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
-          cat student.yaml
+          cat student.yaml | base64 > encoded_data.txt
+          export spec=$(encoded_data.txt)
           curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
