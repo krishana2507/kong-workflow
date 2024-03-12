@@ -16,7 +16,6 @@ jobs:
 
       - name: download jq
         run: |
-          cat student.yaml
           sudo apt install jq -y
           jq --version
       - name: download yq
@@ -65,6 +64,8 @@ jobs:
     needs: OAS_TO_Kong
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
       - name: Fech environment variables
         id: set_env_vars
         run: |
