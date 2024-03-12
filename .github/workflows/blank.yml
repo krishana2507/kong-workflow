@@ -58,6 +58,7 @@ jobs:
           # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
           deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.DECK_CONTROL_PLANE_NAME }}
+          
   publish-customer-api-to-portal:
     name: Publish OAS to dev portal
     needs: OAS_TO_Kong
@@ -66,6 +67,7 @@ jobs:
       - name: Fech environment variables
         id: set_env_vars
         run: |
+          cat student.yaml
           echo "API_PRODUCT_NAME: ${{ vars.API_PRODUCT_NAME }}"
           echo "CONTROL_PLANE_NAME: ${{ vars.CONTROL_PLANE_NAME }}" 
           echo "GATEWAY_SERVICE_NAME: ${{ vars.GATEWAY_SERVICE_NAME }}" 
@@ -176,7 +178,6 @@ jobs:
         run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
-
           cat student.yaml
           curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
