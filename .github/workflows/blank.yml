@@ -201,6 +201,6 @@ jobs:
             --header "Authorization: \$\{{ secrets.PIPELINE_TOKEN \}\}" \
             --header "Content-Type: application/json" \
             --data "{
-                    \"name\": \"student.yaml\", 
-                    \"content\": \"$encoded_spec\"
+                    "name": "student.yaml", 
+                    "content": "$encoded_spec"
                   }"
