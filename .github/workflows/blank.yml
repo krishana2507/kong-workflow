@@ -190,7 +190,7 @@ jobs:
                                 }
                        }"
 
-      - name: Upload spec on the version
+      - name: upload spec on the version
         run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
@@ -198,9 +198,9 @@ jobs:
           encoded_spec=$(base64 student.yaml)
           echo $encoded_spec
           curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
-            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
-            --header 'Content-Type: application/json' \
+            --header "Authorization: \$\{{ secrets.PIPELINE_TOKEN \}\}" \
+            --header "Content-Type: application/json" \
             --data '{
               "name": "student.yaml",
-              "content": $encoded_spec
+              "content": "'"$encoded_spec"'"
             }'
