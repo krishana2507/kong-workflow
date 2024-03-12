@@ -10,17 +10,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Set Environment Variables
+      - name: Check head on main or not
         run: |
-          echo "KEY_AUTH_ENABLED=true" >> $GITHUB_ENV
-          echo "RATE_LIMITING_ENABLED=true" >> $GITHUB_ENV
-          echo "REQUEST_SIZE_LIMITING_ENABLED=true" >> $GITHUB_ENV
-          echo "HTTP_LOG_ENABLED=true" >> $GITHUB_ENV
-          echo "IP_RESTRICTION_ENABLED=true" >> $GITHUB_ENV
-          echo "ACL_ENABLED=true" >> $GITHUB_ENV
-          echo "OAS_VALIDATION_ENABLED=true" >> $GITHUB_ENV
-          echo "OPENID_CONNECT_ENABLED=true" >> $GITHUB_ENV
-          echo "CORRELATION_ID_ENABLED=true" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
       - name: download jq
         run: |
@@ -43,16 +34,16 @@ jobs:
           deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
       - name: Append Plugins to new-api.yaml
         run: >
-          if [ "${KEY_AUTH_ENABLED}" == "true" ] && [ "${RATE_LIMITING_ENABLED}" ==
-          "true" ] && [ "${REQUEST_SIZE_LIMITING_ENABLED}" == "true" ] && [
-          "${HTTP_LOG_ENABLED}" == "true" ] && [ "${IP_RESTRICTION_ENABLED}" ==
-          "true" ] && [ "${ACL_ENABLED}" == "true" ] && [
-          "${OAS_VALIDATION_ENABLED}" == "true" ] && [ "${OPENID_CONNECT_ENABLED}" ==
-          "true" ] && [ "${CORRELATION_ID_ENABLED}" ==
+          if [ "${{ vars.KEY_AUTH }}" == "true" ] || [ "${{ vars.RATE_LIMITING }}" ==
+          "true" ] || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [
+          "${{ vars.HTTP_LOG }}" == "true" ] || [ "${{ vars.IP_RESTRICTION }}" ==
+          "true" ] || [ "${{ vars.ACL }}" == "true" ] || [
+          "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
+          "true" ] || [ "${{ vars.CORRELATION_ID }}" ==
           "true" ]; then
-             sed -i '1,2d' ratelimiting.yaml
-             sed -i '1,2d' acl.yaml
-             sed -i '1,2d' http-log.yaml
+             sed -i '1,2d' ratelimiting.yaml acl.yaml http-log.yaml
+            #  sed -i '1,2d' acl.yaml
+            #  sed -i '1,2d' http-log.yaml
              sed -i '1,2d' request-size-limiting.yaml
              sed -i '1,2d' ip-restriction.yaml
              sed -i '1,2d' oas-validation.yaml
