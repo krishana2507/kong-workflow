@@ -13,6 +13,7 @@ jobs:
       - name: Check head on main or not
         run: |
         if: github.ref == 'refs/heads/main'
+
       - name: download jq
         run: |
           sudo apt install jq -y
@@ -56,7 +57,7 @@ jobs:
 
           # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
-          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name Transit-testing
+          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.DECK_CONTROL_PLANE_NAME }}
   publish-customer-api-to-portal:
     name: Publish OAS to dev portal
     needs: OAS_TO_Kong
