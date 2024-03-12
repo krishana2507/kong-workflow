@@ -54,7 +54,7 @@ jobs:
       - name: Set headers and run deck sync
         run: >
           cat modified-api.yaml
-
+          
           # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
           deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.DECK_CONTROL_PLANE_NAME }}
@@ -180,6 +180,7 @@ jobs:
 
           cat student.yaml | base64 > encoded_data.txt
           export spec=$(cat encoded_data.txt)
+          echo $spec
 
           curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
