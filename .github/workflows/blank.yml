@@ -173,7 +173,7 @@ jobs:
                                 }
                        }"
       - name: upload spec on the version
-        run: >
+        run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
 
