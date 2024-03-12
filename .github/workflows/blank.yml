@@ -178,9 +178,7 @@ jobs:
 
           echo "API Product Version ID: $API_Product_Version_ID"
 
-          cat student.yaml | base64 > encoded_data.txt
-          export spec=$(cat encoded_data.txt)
-          echo $spec
+          cat student.yaml
 
           curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
