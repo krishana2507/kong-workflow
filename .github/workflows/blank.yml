@@ -194,7 +194,6 @@ jobs:
         run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
-          cat student.yaml
           encoded_spec=$(base64 student.yaml)
           echo $encoded_spec | tr -d '\n' > spec
           echo $spec
