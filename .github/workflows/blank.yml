@@ -83,7 +83,7 @@ jobs:
           echo "CONTROL_PLANE_NAME: ${{ vars.CONTROL_PLANE_NAME }}" 
           echo "GATEWAY_SERVICE_NAME: ${{ vars.GATEWAY_SERVICE_NAME }}" 
 
-      - name: Check and Create API product
+      - name: Check API Product is already exist or not or Creating new API product
         run: |
           response=$(curl -s --request GET \
             --url "${{ vars.ADMIN_API_URL }}/api-products" \
