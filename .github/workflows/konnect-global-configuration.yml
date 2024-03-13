@@ -34,7 +34,7 @@ jobs:
           sudo cp /tmp/deck /usr/local/bin/
 
       - name: Add Global plugins
-        run:  cat ./kong-global-config/kong.yaml | deck file add-plugins ./kong-global-config/dev-global-plugin.yaml.yaml -o kong.yaml    
+        run:  cat ./kong-global-config/kong.yaml | deck file add-plugins ./kong-global-config/dev-global-plugin.yaml -o kong.yaml    
 
       - name: Apply Global Configuration
         run: >
