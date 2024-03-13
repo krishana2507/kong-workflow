@@ -89,7 +89,7 @@ jobs:
             --url "${{ vars.ADMIN_API_URL }}/api-products" \
             --header "Authorization: ${{ secrets.PIPELINE_TOKEN }}")
 
-          if [[ $response == *"${{ vars.API_PRODUCT_NAME }}"*]]; then
+          if [[ $response == *"${{ vars.API_PRODUCT_NAME }}"* ]]; then
               echo "API product already exists, Please change the API product name"
           else
             echo "API product dosen't exist, creating..."
