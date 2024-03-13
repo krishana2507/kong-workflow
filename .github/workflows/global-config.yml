@@ -35,7 +35,6 @@ jobs:
         run: >
             if [ "${{ vars.HTTP_LOG }}" == "true" || [ "${{ vars.CORRELATION_ID }}" == "true" ]; then
               sed -i '1,2d' correlation.yaml
-              sed -i '1d' http-log.yaml
               cat  http-log.yaml correlation.yaml > combined-plugins.yaml
               cat combined-plugins.yaml
             fi
