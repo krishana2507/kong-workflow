@@ -42,15 +42,13 @@ jobs:
       - name: Append Plugins to new-api.yaml
         run: >
           if [ "${{ vars.KEY_AUTH }}" == "true" ] || [ "${{ vars.RATE_LIMITING }}" ==
-          "true" ] || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [
-          "${{ vars.HTTP_LOG }}" == "true" ] || [ "${{ vars.IP_RESTRICTION }}" ==
+          "true" ] || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.IP_RESTRICTION }}" ==
           "true" ] || [ "${{ vars.ACL }}" == "true" ] || [
           "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
-          "true" ] || [ "${{ vars.CORRELATION_ID }}" ==
-          "true" ]; then
-             sed -i '1,2d' ratelimiting.yaml acl.yaml http-log.yaml request-size-limiting.yaml ip-restriction.yaml oas-validation.yaml correlation.yaml open-id.yaml
+          "true" ] ]; then
+             sed -i '1,2d' ratelimiting.yaml acl.yaml request-size-limiting.yaml ip-restriction.yaml oas-validation.yaml open-id.yaml
              sed -i '1d' keyauth.yaml
-             cat keyauth.yaml ratelimiting.yaml request-size-limiting.yaml acl.yaml http-log.yaml  ip-restriction.yaml oas-validation.yaml correlation.yaml open-id.yaml > combined-plugins.yaml
+             cat keyauth.yaml ratelimiting.yaml request-size-limiting.yaml acl.yaml ip-restriction.yaml oas-validation.yaml open-id.yaml > combined-plugins.yaml
              cat combined-plugins.yaml
              export plugins=$(cat combined-plugins.yaml)
              echo $plugins
