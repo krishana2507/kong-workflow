@@ -8,12 +8,11 @@ jobs:
   OAS_TO_Kong:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Code from another repository
         uses: actions/checkout@v2
-
-      - name: Check head on main or not
-        run: |
-        if: github.ref == 'refs/heads/main'
+        with:
+          repository: Ani-maurya/pipeline-data
+          ref: main
 
       - name: download jq
         run: |
@@ -69,8 +68,11 @@ jobs:
     needs: OAS_TO_Kong
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Code from another repository
         uses: actions/checkout@v2
+        with:
+          repository: Ani-maurya/pipeline-data
+          ref: main
 
       - name: Fech environment variables
         id: set_env_vars
@@ -79,17 +81,25 @@ jobs:
           echo "CONTROL_PLANE_NAME: ${{ vars.CONTROL_PLANE_NAME }}" 
           echo "GATEWAY_SERVICE_NAME: ${{ vars.GATEWAY_SERVICE_NAME }}" 
 
-      - name: Create API product
+      - name: Check and Create API product
         run: |
-          curl --request POST \
+          response=$(curl -s --request GET \
             --url ${{ vars.ADMIN_API_URL }}/api-products \
-            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
-            --header 'Content-Type: application/json' \
-            --data '{
-              "name": "${{ vars.API_PRODUCT_NAME }}",
-              "description": "Creating through admin api",
-              "labels": {}
-            }' 
+            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}')
+
+          if [[ $response == *"${{ vars.API_PRODUCT_NAME }}"*]]; then
+              echo "API product already exists, Please change the API product name"
+          else
+            echo "API product dosen't exist, creating..."
+            curl --request POST \
+              --url ${{ vars.ADMIN_API_URL }}/api-products \
+              --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
+              --header 'Content-Type: application/json' \
+              --data '{
+                "name": "${{ vars.API_PRODUCT_NAME }}",
+                "description": "Creating through admin api",
+                "labels": {}
+              }' 
 
       - name: Get API product ID
         run: >
