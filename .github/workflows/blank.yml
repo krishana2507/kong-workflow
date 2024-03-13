@@ -11,8 +11,8 @@ jobs:
       - name: Checkout Code from another repository
         uses: actions/checkout@v2
         with:
-          repository: Ani-maurya/pipeline-data
-          ref: main
+          repository: 'Ani-maurya/pipeline-data'
+          ref: 'main'
 
       - name: download jq
         run: |
