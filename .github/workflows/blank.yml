@@ -13,6 +13,7 @@ jobs:
         with:
           repository: 'Ani-maurya/pipeline-data'
           ref: 'main'
+          token: ${{ secrets.PAT }}
 
       - name: download jq
         run: |
@@ -73,6 +74,7 @@ jobs:
         with:
           repository: Ani-maurya/pipeline-data
           ref: main
+          token: ${{ secrets.PAT }}
 
       - name: Fech environment variables
         id: set_env_vars
