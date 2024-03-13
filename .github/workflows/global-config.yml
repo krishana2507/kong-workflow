@@ -5,7 +5,7 @@ on:
     branches:
       - main
 jobs:
-  Global Plugin Configuration :
+  Global Plugin Configuration:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code from another repository

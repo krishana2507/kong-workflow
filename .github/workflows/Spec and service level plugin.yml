@@ -62,7 +62,7 @@ jobs:
           
           # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
-          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.DECK_CONTROL_PLANE_NAME }}
+          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name A-2
           
   publish-customer-api-to-portal:
     name: Publish OAS to dev portal
