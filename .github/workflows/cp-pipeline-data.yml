@@ -1,5 +1,5 @@
 ---
-name: Kong API Gateway Workflow
+name: cp-pipeline-data
 on:
   # push:
   #   branches:
