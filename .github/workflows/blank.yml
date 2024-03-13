@@ -1,9 +1,11 @@
 ---
 name: Kong API Gateway Workflow
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+  
 jobs:
   OAS_TO_Kong:
     runs-on: ubuntu-latest
