@@ -86,8 +86,8 @@ jobs:
       - name: Check and Create API product
         run: |
           response=$(curl -s --request GET \
-            --url ${{ vars.ADMIN_API_URL }}/api-products \
-            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}')
+            --url "${{ vars.ADMIN_API_URL }}/api-products" \
+            --header "Authorization: ${{ secrets.PIPELINE_TOKEN }}"")
 
           if [[ $response == *"${{ vars.API_PRODUCT_NAME }}"*]]; then
               echo "API product already exists, Please change the API product name"
