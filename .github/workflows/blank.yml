@@ -82,7 +82,7 @@ jobs:
       - name: Create API product
         run: |
           curl --request POST \
-            --url https://us.api.konghq.com/v2/api-products \
+            --url ${{ vars.ADMIN_API_URL }}/api-products \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
             --data '{
@@ -96,7 +96,7 @@ jobs:
           api_product_name="${{ vars.API_PRODUCT_NAME }}"
 
           api_product_id=$(curl --request GET \
-            --url https://us.api.konghq.com/v2/api-products \
+            --url ${{ vars.ADMIN_API_URL }}/api-products \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r --arg api_product_name "$api_product_name" '.data[] | select(.name == $api_product_name) | .id // empty')
 
@@ -110,7 +110,7 @@ jobs:
       - name: Get Dev Portal ID
         run: |
           Dev_portal_id=$(curl --request GET \
-            --url https://us.api.konghq.com/v2/portals \
+            --url ${{ vars.ADMIN_API_URL }}/portals \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r '.data[].id')
               echo "DEV_PORTAL_ID=$Dev_portal_id" >> $GITHUB_ENV
@@ -120,7 +120,7 @@ jobs:
           echo "API Product ID: $API_PRODUCT_ID"
           echo "Dev Portal ID: $DEV_PORTAL_ID"
           curl --request PATCH \
-           --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID \
+           --url ${{ vars.ADMIN_API_URL }}/api-products/$API_PRODUCT_ID \
            --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
            --header 'Content-Type: application/json' \
            --data "{
@@ -132,7 +132,7 @@ jobs:
           echo "API Product ID: $API_PRODUCT_ID"
 
           api_product_version_id=$(curl --request POST \
-            --url https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions \
+            --url ${{ vars.ADMIN_API_URL }}/api-products/$API_PRODUCT_ID/product-versions \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
             --data '{
@@ -147,7 +147,7 @@ jobs:
         run: >
           control_plane_name="${{ vars.CONTROL_PLANE_NAME }}"
 
-          control_plane_id=$(curl --location 'https://us.api.konghq.com/v2/control-planes' \
+          control_plane_id=$(curl --location '${{ vars.ADMIN_API_URL }}/control-planes' \
 
           --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
 
@@ -161,7 +161,7 @@ jobs:
 
           gateway_service_name="${{ vars.GATEWAY_SERVICE_NAME }}"
 
-          service_id=$(curl --location "https://us.api.konghq.com/v2/control-planes/$Control_Plane_ID/core-entities/services" \
+          service_id=$(curl --location "${{ vars.ADMIN_API_URL }}/control-planes/$Control_Plane_ID/core-entities/services" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             | jq -r --arg gateway_service_name "$gateway_service_name" '.data[] | select(.name == $gateway_service_name) | .id')
           echo "Service_ID=$service_id" >> $GITHUB_ENV
@@ -176,7 +176,7 @@ jobs:
 
           echo "API Product Version ID: $API_Product_Version_ID"
 
-          curl --location --request PATCH "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID" \
+          curl --location --request PATCH "${{ vars.ADMIN_API_URL }}/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID" \
                 --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
                 --header 'Content-Type: application/json' \
                 --data "{
@@ -196,7 +196,7 @@ jobs:
           echo "API Product Version ID: $API_Product_Version_ID"
           encoded_spec=$(base64 -w 0 student.yaml)
           echo $encoded_spec
-          curl --location --request POST "https://us.api.konghq.com/v2/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
+          curl --location --request POST "${{ vars.ADMIN_API_URL }}/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
             --data '{
