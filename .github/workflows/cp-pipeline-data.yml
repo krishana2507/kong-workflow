@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Code from another repository
         uses: actions/checkout@v2
         with:
-          repository: 'Ani-maurya/pipeline-data'
+          repository: 'Ani-maurya/cp-pipeline-data'
           ref: 'main'
           token: ${{ secrets.PAT }}
 
@@ -62,7 +62,7 @@ jobs:
           
           # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
-          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name A-2
+          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.SERVICE_CONTROL_PLANE_NAME }}
           
   publish-customer-api-to-portal:
     name: Publish OAS to dev portal
@@ -72,7 +72,7 @@ jobs:
       - name: Checkout Code from another repository
         uses: actions/checkout@v2
         with:
-          repository: Ani-maurya/pipeline-data
+          repository: Ani-maurya/cp-pipeline-data
           ref: main
           token: ${{ secrets.PAT }}
 

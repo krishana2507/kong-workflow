@@ -28,4 +28,4 @@ jobs:
 
       - name: Apply Global Configuration
         run: >
-          deck gateway sync  --select-tag dev ./kong-global-config/kong.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name A-global-configuration
+          deck gateway sync  --select-tag dev ./kong-global-config/kong.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.GLOBAL_CONTROL_PLANE_NAME }}
