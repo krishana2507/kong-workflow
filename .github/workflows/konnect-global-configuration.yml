@@ -17,16 +17,6 @@ jobs:
           ref: 'main'
           token: ${{ secrets.PAT }}
 
-      - name: download jq
-        run: |
-          sudo apt install jq -y
-          jq --version
-
-      - name: download yq
-        run: |
-          sudo snap install yq
-          yq --version
-
       - name: Install deck CLI
         run: |
           curl -sL https://github.com/kong/deck/releases/download/v1.35.0/deck_1.35.0_linux_amd64.tar.gz -o deck.tar.gz
@@ -34,8 +24,8 @@ jobs:
           sudo cp /tmp/deck /usr/local/bin/
 
       - name: Add Global plugins
-        run:  cat ./kong-global-config/kong.yaml | deck file add-plugins ./kong-global-config/dev-global-plugin.yaml -o kong.yaml    
+        run:  cat ./kong-global-config/kong.yaml | deck file add-plugins ./kong-global-config/dev-global-plugin.yaml -o ./kong-global-config/kong.yaml    
 
       - name: Apply Global Configuration
         run: >
-          deck gateway sync  --select-tag dev kong.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name A-global-configuration
+          deck gateway sync  --select-tag dev ./kong-global-config/kong.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name A-global-configuration
