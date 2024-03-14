@@ -25,9 +25,10 @@ jobs:
 
       - name: Append Plugins to New file
         run: >
-            if [ "${{ vars.KEY_AUTH }}" == "true"  || [ "${{ vars.RATE_LIMITING }}" == "true" ] || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.HTTP_LOG }}" == "true" ] || [ "${{ vars.IP_RESTRICTION }}" =="true" ] || [ "${{ vars.CORRELATION_ID }}" =="true" ] ]; then
-              sed -i '1,2d' ./kong-global-config/correlation.yaml ./kong-global-config/ip-restriction.yaml ./kong-global-config/key-auth.yaml ./kong-global-config/rate-limiting.yaml ./kong-global-config/request-size-limiting.yaml
-              cat  ./kong-global-config/http-log.yaml ./kong-global-config/correlation.yaml ./kong-global-config/ip-restriction.yaml ./kong-global-config/key-auth.yaml ./kong-global-config/rate-limiting.yaml ./kong-global-config/request-size-limiting.yaml  > combined-plugins.yaml
+            if [ "${{ vars.KEY_AUTH }}" == "true"  || [ "${{ vars.RATE_LIMITING }}" == "true" ] || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.HTTP_LOG }}" == "true" ] || [ "${{ vars.IP_RESTRICTION }}" =="true" ] || [ "${{ vars.CORRELATION_ID }}" == "true" ] ]; then
+              cd kong-global-config
+              sed -i '1,2d' correlation.yaml ip-restriction.yaml key-auth.yaml rate-limiting.yaml request-size-limiting.yaml
+              cat  http-log.yaml correlation.yaml ip-restriction.yaml key-auth.yaml rate-limiting.yaml request-size-limiting.yaml  > combined-plugins.yaml
               cat combined-plugins.yaml
             fi
       
