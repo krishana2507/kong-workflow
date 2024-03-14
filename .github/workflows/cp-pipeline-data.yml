@@ -89,6 +89,7 @@ jobs:
 
           if [[ $response == *"${{ vars.API_PRODUCT_NAME }}"* ]]; then
               echo "API product already exists, Please change the API product name"
+              exit 1
           else
             echo "API product dosen't exist, creating..."
             curl --request POST \
