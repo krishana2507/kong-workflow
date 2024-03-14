@@ -30,9 +30,10 @@ jobs:
               cd plugin-config/kong-global-config
               sed -i '1,2d' correlation.yaml ip-restriction.yaml key-auth.yaml rate-limiting.yaml request-size-limiting.yaml
               cat  http-log.yaml correlation.yaml ip-restriction.yaml key-auth.yaml rate-limiting.yaml request-size-limiting.yaml  > combined-plugins.yaml
-              cat combined-plugins.yaml
+              
             fi
       
       - name: Apply Global Configuration
-        run: >
+        run: |
+          cat combined-plugins.yaml
           deck gateway sync  --select-tag dev combined-plugins.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.GLOBAL_CONTROL_PLANE_NAME }}
