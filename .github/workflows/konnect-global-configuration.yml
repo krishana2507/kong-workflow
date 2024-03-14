@@ -35,5 +35,6 @@ jobs:
       
       - name: Apply Global Configuration
         run: |
+          cd plugin-config/kong-global-config
           cat combined-plugins.yaml
           deck gateway sync  --select-tag dev combined-plugins.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.GLOBAL_CONTROL_PLANE_NAME }}
