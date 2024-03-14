@@ -51,7 +51,6 @@ jobs:
           tar -xf deck.tar.gz -C /tmp 
 
           sudo cp /tmp/deck /usr/local/bin/
-          cd global-config
           deck file openapi2kong -s student-api/Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: Append Plugins to new-api.yaml
@@ -66,7 +65,7 @@ jobs:
              export plugins=$(cat combined-plugins.yaml)
              export route_plugins=$(cat global-config/acl.yaml)
              echo $plugins
-             cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > modified-api.yaml
+             cat ../kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > modified-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
 
