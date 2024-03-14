@@ -13,14 +13,14 @@ jobs:
       - name: Checkout Code from kong student api
         uses: actions/checkout@v2
         with:
-          repository: 'Ani-maurya/kong-student-api'
+          repository: 'Ani-maurya/integration-global-kong-configuration'
           ref: 'main'
           token: ${{ secrets.PAT }}
 
       - name: Checkout Code from kong global config
         uses: actions/checkout@v2
         with:
-          repository: 'Ani-maurya/integration-global-kong-configuration'
+          repository: 'Ani-maurya/kong-student-api'
           ref: 'main'
           token: ${{ secrets.PAT }}
 
