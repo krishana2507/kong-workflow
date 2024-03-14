@@ -40,7 +40,7 @@ jobs:
           deck file openapi2kong -s Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: Append Plugins to new-api.yaml
-        run: >
+        run: |
           if [ "${{ vars.RATE_LIMITING }}" == "true"  || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
           "true" ] ]; then
              sed -i '1,2d' request-size-limiting.yaml  oas-validation.yaml open-id.yaml
@@ -55,9 +55,9 @@ jobs:
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
 
-      # - name: Set headers and run deck sync
-      #   run: >
-      #     cat modified-api.yaml
+      - name: Set headers and run deck sync
+        run: |
+          cat modified-api.yaml
           
       #     # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
