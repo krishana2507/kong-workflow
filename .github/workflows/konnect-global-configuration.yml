@@ -26,7 +26,7 @@ jobs:
 
       - name: Append Plugins to New file
         run: |
-            ls -la plugin-config/
+            ls -la plugin-config/kong-global-config
             if [ "${{ vars.KEY_AUTH }}" == "true" ] || [ "${{ vars.RATE_LIMITING }}" == "true" ] || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.HTTP_LOG }}" == "true" ] || [ "${{ vars.IP_RESTRICTION }}" =="true" ] || [ "${{ vars.CORRELATION_ID }}" == "true"]; then
               cd plugin-config/kong-global-config
               sed -i '1,2d' correlation.yaml ip-restriction.yaml key-auth.yaml rate-limiting.yaml request-size-limiting.yaml
