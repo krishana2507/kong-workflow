@@ -10,7 +10,7 @@ jobs:
   Global_Plugin_Configuration:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code from another repository
+      - name: Checkout Code from kong global config
         uses: actions/checkout@v2
         with:
           repository: 'Ani-maurya/integration-global-kong-configuration'
@@ -23,9 +23,14 @@ jobs:
           tar -xf deck.tar.gz -C /tmp 
           sudo cp /tmp/deck /usr/local/bin/
 
-      - name: Add Global plugins
-        run:  cat ./kong-global-config/kong.yaml | deck file add-plugins ./kong-global-config/dev-global-plugin.yaml -o ./kong-global-config/kong.yaml    
-
+      - name: Append Plugins to New file
+        run: >
+            if [ "${{ vars.KEY_AUTH }}" == "true"  || [ "${{ vars.RATE_LIMITING }}" == "true" ] || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.HTTP_LOG }}" == "true" ] || [ "${{ vars.IP_RESTRICTION }}" =="true" ] || [ "${{ vars.CORRELATION_ID }}" =="true" ] ]; then
+              sed -i '1,2d' ./kong-global-config/correlation.yaml ./kong-global-config/ip-restriction.yaml ./kong-global-config/key-auth.yaml ./kong-global-config/rate-limiting.yaml ./kong-global-config/request-size-limiting.yaml
+              cat  ./kong-global-config/http-log.yaml ./kong-global-config/correlation.yaml ./kong-global-config/ip-restriction.yaml ./kong-global-config/key-auth.yaml ./kong-global-config/rate-limiting.yaml ./kong-global-config/request-size-limiting.yaml  > combined-plugins.yaml
+              cat combined-plugins.yaml
+            fi
+      
       - name: Apply Global Configuration
         run: >
-          deck gateway sync  --select-tag dev ./kong-global-config/kong.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.GLOBAL_CONTROL_PLANE_NAME }}
+          deck gateway sync  --select-tag dev combined-plugins.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.GLOBAL_CONTROL_PLANE_NAME }}
