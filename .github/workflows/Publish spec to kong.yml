@@ -16,7 +16,7 @@ jobs:
           repository: 'Ani-maurya/integration-global-kong-configuration'
           ref: 'main'
           token: ${{ secrets.PAT }}
-          path: global
+          path: global-config
 
       - name: Checkout Code from kong global config
         uses: actions/checkout@v2
@@ -24,7 +24,7 @@ jobs:
           repository: 'Ani-maurya/kong-student-api'
           ref: 'main'
           token: ${{ secrets.PAT }}
-          path: api
+          path: student-api
       
       # - name: list files from kong global config
       #   run: ls -la kong-student-api 
@@ -52,7 +52,7 @@ jobs:
 
           sudo cp /tmp/deck /usr/local/bin/
 
-          deck file openapi2kong -s Student_v0.4.yml --select-tag=dev -o kong.yaml
+          deck file openapi2kong -s student-api/Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: Append Plugins to new-api.yaml
         run: |
