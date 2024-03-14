@@ -58,9 +58,10 @@ jobs:
         run: |
           if [ "${{ vars.RATE_LIMITING }}" == "true"  || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.ACL }}" == "true" ] || "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
           "true" ] ]; then
-             sed -i '1,2d' global-config/request-size-limiting.yaml  global-config/oas-validation.yaml global-config/open-id.yaml global-config/acl.yaml
-             sed -i '1d' global-config/ratelimiting.yaml
-             cat  global-config/ratelimiting.yaml global-config/request-size-limiting.yaml global-config/oas-validation.yaml global-config/open-id.yaml > combined-plugins.yaml
+             cd global-config
+             sed -i '1,2d' request-size-limiting.yaml  oas-validation.yaml open-id.yaml acl.yaml
+             sed -i '1d' ratelimiting.yaml
+             cat  ratelimiting.yaml request-size-limiting.yaml oas-validation.yaml open-id.yaml > combined-plugins.yaml
              cat combined-plugins.yaml
              export plugins=$(cat combined-plugins.yaml)
              export route_plugins=$(cat global-config/acl.yaml)
@@ -71,6 +72,7 @@ jobs:
 
       - name: Set headers and run deck sync
         run: |
+          cd global-config
           cat modified-api.yaml
           
           # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
