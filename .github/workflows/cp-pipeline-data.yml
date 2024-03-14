@@ -43,9 +43,8 @@ jobs:
         run: |
           if [ "${{ vars.RATE_LIMITING }}" == "true"  || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
           "true" ] ]; then
-             sed -i '1,2d' request-size-limiting.yaml  oas-validation.yaml open-id.yaml
+             sed -i '1,2d' request-size-limiting.yaml  oas-validation.yaml open-id.yaml acl.yaml
              sed -i '1d' ratelimiting.yaml
-             sed -i '1d' acl.yaml
              cat  ratelimiting.yaml request-size-limiting.yaml oas-validation.yaml open-id.yaml > combined-plugins.yaml
              cat combined-plugins.yaml
              export plugins=$(cat combined-plugins.yaml)
@@ -59,9 +58,9 @@ jobs:
         run: |
           cat modified-api.yaml
           
-      #     # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
+          # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
-      #     deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.CONTROL_PLANE_NAME }}
+          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.CONTROL_PLANE_NAME }}
           
   publish-customer-api-to-portal:
     name: Publish OAS to dev portal
