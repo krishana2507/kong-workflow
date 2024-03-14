@@ -25,7 +25,7 @@ jobs:
           sudo cp /tmp/deck /usr/local/bin/
 
       - name: Append Plugins to New file
-        run: >
+        run: |
             ls -la plugin-config/
             if [ "${{ vars.KEY_AUTH }}" == "true" ] || [ "${{ vars.RATE_LIMITING }}" == "true" ] || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.HTTP_LOG }}" == "true" ] || [ "${{ vars.IP_RESTRICTION }}" =="true" ] || [ "${{ vars.CORRELATION_ID }}" == "true"]; then
               cd plugin-config/kong-global-config
