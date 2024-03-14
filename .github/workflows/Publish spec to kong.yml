@@ -58,12 +58,12 @@ jobs:
         run: |
           if [ "${{ vars.RATE_LIMITING }}" == "true"  || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.ACL }}" == "true" ] || "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
           "true" ] ]; then
-             sed -i '1,2d' request-size-limiting.yaml  oas-validation.yaml open-id.yaml acl.yaml
-             sed -i '1d' ratelimiting.yaml
-             cat  ratelimiting.yaml request-size-limiting.yaml oas-validation.yaml open-id.yaml > combined-plugins.yaml
+             sed -i '1,2d' global-config/request-size-limiting.yaml  global-config/oas-validation.yaml global-config/open-id.yaml global-config/acl.yaml
+             sed -i '1d' global-config/ratelimiting.yaml
+             cat  global-config/ratelimiting.yaml global-config/request-size-limiting.yaml global-config/oas-validation.yaml global-config/open-id.yaml > combined-plugins.yaml
              cat combined-plugins.yaml
              export plugins=$(cat combined-plugins.yaml)
-             export route_plugins=$(cat acl.yaml)
+             export route_plugins=$(cat global-config/acl.yaml)
              echo $plugins
              cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > modified-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
@@ -85,7 +85,7 @@ jobs:
       - name: Checkout Code from another repository
         uses: actions/checkout@v2
         with:
-          repository: Ani-maurya/cp-pipeline-data
+          repository: Ani-maurya/kong-student-api
           ref: main
           token: ${{ secrets.PAT }}
 
