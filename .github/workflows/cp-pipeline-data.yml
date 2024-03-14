@@ -37,7 +37,7 @@ jobs:
 
           sudo cp /tmp/deck /usr/local/bin/
 
-          deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
+          deck file openapi2kong -s Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: Append Plugins to new-api.yaml
         run: >
@@ -207,12 +207,12 @@ jobs:
         run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
-          encoded_spec=$(base64 -w 0 student.yaml)
+          encoded_spec=$(base64 -w 0 Student_v0.4.yml)
           echo $encoded_spec
           curl --location --request POST "${{ vars.ADMIN_API_URL }}/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
             --header 'Content-Type: application/json' \
             --data '{
-                    "name": "student.yaml",
+                    "name": "Student.yaml",
                     "content": "'"$encoded_spec"'"
                   }'
