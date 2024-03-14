@@ -79,7 +79,8 @@ jobs:
         run: |
           echo "API_PRODUCT_NAME: ${{ vars.API_PRODUCT_NAME }}"
           echo "CONTROL_PLANE_NAME: ${{ vars.CONTROL_PLANE_NAME }}" 
-          echo "GATEWAY_SERVICE_NAME: ${{ vars.GATEWAY_SERVICE_NAME }}" 
+          echo "GATEWAY_SERVICE_NAME: ${{ vars.GATEWAY_SERVICE_NAME }}"
+          echo "API_PRODUCT_ALREADY_EXISTS=false" >> $GITHUB_ENV
 
       - name: Check API Product is already exist or not or Creating new API product
         run: |
@@ -89,7 +90,8 @@ jobs:
 
           if [[ $response == *"${{ vars.API_PRODUCT_NAME }}"* ]]; then
               echo "API product already exists, Please change the API product name"
-              echo "::set-env name=API_PRODUCT_ALREADY_EXISTS::true"
+              echo "API_PRODUCT_ALREADY_EXISTS=true" >> $GITHUB_ENV
+              
           else
             echo "API product dosen't exist, creating..."
             curl --request POST \
