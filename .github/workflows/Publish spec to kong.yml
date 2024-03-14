@@ -23,6 +23,12 @@ jobs:
           repository: 'Ani-maurya/kong-student-api'
           ref: 'main'
           token: ${{ secrets.PAT }}
+      
+      - name: list files from kong global config
+        run: ls -la integration-global-kong-configuration
+
+      - name: list files from kong student api
+        run: ls -la kong-student-api
 
       - name: download jq
         run: |
