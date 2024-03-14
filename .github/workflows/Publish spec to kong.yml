@@ -25,10 +25,10 @@ jobs:
           token: ${{ secrets.PAT }}
       
       - name: list files from kong global config
-        run: ls -la integration-global-kong-configuration
+        run: ls -la kong-student-api 
 
       - name: list files from kong student api
-        run: ls -la kong-student-api
+        run: ls -la integration-global-kong-configuration
 
       - name: download jq
         run: |
