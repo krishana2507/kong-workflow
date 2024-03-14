@@ -51,7 +51,7 @@ jobs:
           tar -xf deck.tar.gz -C /tmp 
 
           sudo cp /tmp/deck /usr/local/bin/
-
+          cd global-config
           deck file openapi2kong -s student-api/Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: Append Plugins to new-api.yaml
