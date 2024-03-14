@@ -10,7 +10,7 @@ jobs:
   OAS_TO_Kong:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code from kong student api
+      - name: Checkout Code from student api
         uses: actions/checkout@v2
         with:
           repository: 'Ani-maurya/integration-global-kong-configuration'
