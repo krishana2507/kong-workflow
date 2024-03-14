@@ -16,6 +16,7 @@ jobs:
           repository: 'Ani-maurya/integration-global-kong-configuration'
           ref: 'main'
           token: ${{ secrets.PAT }}
+          path: global
 
       - name: Checkout Code from kong global config
         uses: actions/checkout@v2
@@ -23,6 +24,7 @@ jobs:
           repository: 'Ani-maurya/kong-student-api'
           ref: 'main'
           token: ${{ secrets.PAT }}
+          path: api
       
       # - name: list files from kong global config
       #   run: ls -la kong-student-api 
