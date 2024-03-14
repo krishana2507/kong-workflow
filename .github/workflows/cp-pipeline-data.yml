@@ -89,7 +89,7 @@ jobs:
 
           if [[ $response == *"${{ vars.API_PRODUCT_NAME }}"* ]]; then
               echo "API product already exists, Please change the API product name"
-              exit 1
+              echo "::set-env name=API_PRODUCT_ALREADY_EXISTS::true"
           else
             echo "API product dosen't exist, creating..."
             curl --request POST \
@@ -104,6 +104,7 @@ jobs:
           fi 
 
       - name: Get API product ID
+        if: env.API_PRODUCT_ALREADY_EXISTS == 'false'
         run: >
           api_product_name="${{ vars.API_PRODUCT_NAME }}"
 
@@ -120,6 +121,7 @@ jobs:
           echo "API_PRODUCT_ID=$api_product_id" >> $GITHUB_ENV 
 
       - name: Get Dev Portal ID
+        if: env.API_PRODUCT_ALREADY_EXISTS == 'false'
         run: |
           Dev_portal_id=$(curl --request GET \
             --url ${{ vars.ADMIN_API_URL }}/portals \
@@ -128,6 +130,7 @@ jobs:
               echo "DEV_PORTAL_ID=$Dev_portal_id" >> $GITHUB_ENV
 
       - name: Publish product to the dev portal
+        if: env.API_PRODUCT_ALREADY_EXISTS == 'false'
         run: |
           echo "API Product ID: $API_PRODUCT_ID"
           echo "Dev Portal ID: $DEV_PORTAL_ID"
@@ -140,6 +143,7 @@ jobs:
            }"
 
       - name: Create the product version
+        if: env.API_PRODUCT_ALREADY_EXISTS == 'false'
         run: >
           echo "API Product ID: $API_PRODUCT_ID"
 
@@ -156,6 +160,7 @@ jobs:
               echo "API Product Version ID: $API_Product_Version_ID"
 
       - name: Get Control Plane ID
+        if: env.API_PRODUCT_ALREADY_EXISTS == 'false'
         run: >
           control_plane_name="${{ vars.CONTROL_PLANE_NAME }}"
 
@@ -168,6 +173,7 @@ jobs:
           echo "Control_Plane_ID=$control_plane_id" >> $GITHUB_ENV
 
       - name: Get Service ID
+        if: env.API_PRODUCT_ALREADY_EXISTS == 'false'
         run: >
           echo "Control Plane Id: $Control_Plane_ID"
 
@@ -179,6 +185,7 @@ jobs:
           echo "Service_ID=$service_id" >> $GITHUB_ENV
 
       - name: Link service to the product version
+        if: env.API_PRODUCT_ALREADY_EXISTS == 'false'
         run: >
           echo "API PRODUCT ID: $API_PRODUCT_ID"
 
@@ -203,6 +210,7 @@ jobs:
                        }"
 
       - name: Upload spec on the version
+        if: env.API_PRODUCT_ALREADY_EXISTS == 'false'
         run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
