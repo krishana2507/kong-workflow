@@ -51,7 +51,7 @@ jobs:
              export plugins=$(cat combined-plugins.yaml)
              export route_plugins=$(cat acl.yaml)
              echo $plugins
-             cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.routes[] +=env(route_plugins)' -o yaml > modified-api.yaml
+             cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.routes.[] +=env(route_plugins)' -o yaml > modified-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
 

@@ -1,11 +1,11 @@
 ---
 name: konnect-global-configuration
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
 
-  workflow_dispatch:     
+  workflow_dispatch    
 jobs:
   Global_Plugin_Configuration:
     runs-on: ubuntu-latest
