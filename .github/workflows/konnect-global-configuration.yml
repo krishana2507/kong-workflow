@@ -30,7 +30,6 @@ jobs:
               cd plugin-config/kong-global-config
               sed -i '1,2d' correlation.yaml ip-restriction.yaml key-auth.yaml rate-limiting.yaml request-size-limiting.yaml
               cat  http-log.yaml correlation.yaml ip-restriction.yaml key-auth.yaml rate-limiting.yaml request-size-limiting.yaml > combined-plugins.yaml
-              ls -la .
             fi
       
       - name: Apply Global Configuration

@@ -4,24 +4,31 @@ on:
   # push:
   #   branches:
   #     - main
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      student_api_repo_name:
+        description: 'Student API repository name'
+        required: true
+      plugin_repo_name:
+        description: 'Plugin reposistory name'
+        required: true
 
 jobs:
   OAS_TO_Kong:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code from student api
+      - name: Checkout Code from global config
         uses: actions/checkout@v2
         with:
-          repository: 'Ani-maurya/integration-global-kong-configuration'
+          repository: 'Ani-maurya/${{ github.event.inputs.plugin_repo_name }}'
           ref: 'main'
           token: ${{ secrets.PAT }}
           path: global-config
 
-      - name: Checkout Code from kong global config
+      - name: Checkout Code from student api
         uses: actions/checkout@v2
         with:
-          repository: 'Ani-maurya/kong-student-api'
+          repository: 'Ani-maurya/${{ github.event.inputs.student_api_repo_name }}'
           ref: 'main'
           token: ${{ secrets.PAT }}
           path: student-api
