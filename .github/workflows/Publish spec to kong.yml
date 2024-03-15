@@ -31,7 +31,7 @@ jobs:
           repository: 'Ani-maurya/${{ github.event.inputs.student_api_repo_name }}'
           ref: 'main'
           token: ${{ secrets.PAT }}
-          path: student-api
+          path: api
       
       # - name: list files from kong global config
       #   run: ls -la kong-student-api 
@@ -59,7 +59,7 @@ jobs:
 
           sudo cp /tmp/deck /usr/local/bin/
 
-          deck file openapi2kong -s student-api/Student_v0.4.yml --select-tag=dev -o kong.yaml
+          deck file openapi2kong -s api/student-api/Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: Append Plugins to new-api.yaml
         run: |
@@ -92,7 +92,7 @@ jobs:
       - name: Checkout Code from another repository
         uses: actions/checkout@v2
         with:
-          repository: Ani-maurya/kong-student-api
+          repository: Ani-maurya/${{ github.event.inputs.student_api_repo_name }}
           ref: main
           token: ${{ secrets.PAT }}
 
