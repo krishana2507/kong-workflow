@@ -95,16 +95,11 @@ jobs:
           fi
 
     
-
-      - name: configuring Git
+      - name: Configuring Git
         run: |  
             cd api/student-api           
             git config --local user.email "action@github.com"
             git config --local user.name "Github Action"
-      #       # git remote set --url origin https://github.com/Ani-maurya/integration-kong-student-api.git # set the remote URL of the target repository
-      #       git config --local credential.helper store # store credentials temporarily
-      #       echo "machine github.com login ${{ secrets.PAT }}" > ~/.netrc # use the PAT for authentication
-      
 
       - name: Commit and Push Changes
         if: env.confirmation == 'false' 
