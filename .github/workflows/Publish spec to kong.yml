@@ -51,6 +51,7 @@ jobs:
 
       - name: Install deck CLI
         run: >
+          cd api/student-api
           curl -sL
           https://github.com/kong/deck/releases/download/v1.34.0/deck_1.34.0_linux_amd64.tar.gz
           -o deck.tar.gz
