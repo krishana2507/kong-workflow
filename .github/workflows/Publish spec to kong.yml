@@ -106,7 +106,7 @@ jobs:
       - name: Ask for consent
         id: consent
         run: |
-          echo "Do you want to overwrite the file?" (yes/no)"
+          echo "Do you want to overwrite the file? (yes/no)"
           read USER_CONSENT
           echo "::set-output name=consent::$USER_CONSENT"
 
