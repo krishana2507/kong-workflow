@@ -73,9 +73,10 @@ jobs:
             echo "File does not exist."
             echo "confirmation=false" >> $GITHUB_ENV
           fi
-          
+
       - name: Debug Confirmation Value
-        run: echo "Confirmation value: ${{ steps.check_file.outputs.confirmation }}"
+        run: | 
+          echo "Confirmation value: ${{ steps.check_file.outputs.confirmation }}"
 
       - name: Append Plugins to new-api.yaml
         run: |
