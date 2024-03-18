@@ -61,6 +61,19 @@ jobs:
 
           deck file openapi2kong -s Student_v0.4.yml --select-tag=dev -o kong.yaml
 
+      - name: check if file exists
+        id: check_file
+        run: |
+          if [ -f "api/student-api/kong-student-api.yaml" ]; then
+            echo "File already exits."
+            echo "Prompting user for confirmation..."
+            echo "Please confirm whether you want to override the existing file."
+            echo "confirmation=true" >> $GITHUB_ENV
+          else
+            echo "File does not exist."
+            echo "confirmation=false" >> $GITHUB_ENV
+          fi
+
       - name: Append Plugins to new-api.yaml
         run: |
           
@@ -76,19 +89,6 @@ jobs:
              cd api/student-api
              cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > kong-student-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
-          fi
-
-      - name: check if file exists
-        id: check_file
-        run: |
-          if [ -f "api/student-api/kong-student-api.yaml" ]; then
-            echo "File already exits."
-            echo "Prompting user for confirmation..."
-            echo "Please confirm whether you want to override the existing file."
-            echo "confirmation=true" >> $GITHUB_ENV
-          else
-            echo "File does not exist."
-            echo "confirmation=false" >> $GITHUB_ENV
           fi
 
       - name: Create Issue for Confirmation
