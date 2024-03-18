@@ -112,6 +112,7 @@ jobs:
 
       - name: Check for changes
         run: |
+          cd api/student-api
           if git diff-index --quiet HEAD --; then
             echo "No changes to commit. Skipping the remaining steps."
             exit 0  # Skip the remaining steps in this job
