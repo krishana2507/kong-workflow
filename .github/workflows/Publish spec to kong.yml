@@ -120,7 +120,7 @@ jobs:
           BRANCH_STATUS=$(git status --porcelain)
 
           # Check if the message contains the specific string
-          if [[ "$BRANCH_STATUS" == *"On branch main Your branch is up to date with 'origin/main'. nothing to commit, working tree clean"* ]]; then
+          if [[ -z "$BRANCH_STATUS" ]]; then
             echo "Branch is up to date. Skipping remaining steps."
             exit 0
           else
