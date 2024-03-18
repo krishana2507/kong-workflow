@@ -115,6 +115,8 @@ jobs:
         run: >
           cd api/student-api
           # Capture the branch status message
+          ls -al
+          git status
           BRANCH_STATUS=$(git status)
 
           # Check if the message contains the specific string
