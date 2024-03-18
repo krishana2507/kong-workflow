@@ -103,15 +103,9 @@ jobs:
           git commit -m "Update kong file"
           git push origin main  
 
-      - name: Ask for consent
-        id: consent
-        run: |
-          echo "Do you want to overwrite the file? (yes/no)"
-          read USER_CONSENT
-          echo "::set-output name=consent::$USER_CONSENT"
-
+      
       - name: overwriting exiting files  
-        if: env.confirmation == 'true' && steps.consent.outputs.consent == 'yes'
+        if: env.confirmation == 'true'
         run: |
           cd api/student-api
           git add kong-student-api.yaml
