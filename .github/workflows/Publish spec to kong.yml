@@ -57,8 +57,6 @@ jobs:
 
           sudo cp /tmp/deck /usr/local/bin/
 
-          cd api/student-api
-
           deck file openapi2kong -s Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: check if file exists
@@ -84,7 +82,7 @@ jobs:
              export route_plugins=$(cat global-config/acl.yaml)
              echo $plugins
              cd api/student-api
-             cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > kong-student-api.yaml
+             cat ../../kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > kong-student-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
 
