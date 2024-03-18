@@ -62,7 +62,6 @@ jobs:
           deck file openapi2kong -s Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: check if file exists
-        id: check_file
         run: |
           if [ -f "api/student-api/kong-student-api.yaml" ]; then
             echo "File already exits."
@@ -95,66 +94,19 @@ jobs:
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
 
-      - name: Create Issue for Confirmation
-        if: env.confirmation == 'false'
-        uses: peter-evans/create-issue-from-file@v3
-        with:
-          title: Confirm Overwrite of kong configuration yaml file
-          content: |
-            The file 'kong-student-api.yaml' already exists  in the directory.
-            Do you want to override the existing file?
-            Please comment with either "confirm" or "cancel".
+    
 
-      - name: Wait for User Confirmation
-        if: env.confirmation == 'false'
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const issue_number = context.payload.issue.number
-            const { data: comments } = await github.issue.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number
-            })
-
-            const userCommnet = comments.find(comment => commnet.user.login !== 'github-action[bot]')
-            if (userComment) {
-                const response = userCommnet.body.trim().toLowerCase()
-                if(reponse === 'confirm') {
-                  console.log('User confirmed overwrite.')
-                  console.log('::set-output name=confirmation::confirm')
-                } else if (response === 'cancel') {
-                  console.log('User cancelled overwrite.')
-                  console.log('::set-output name=confirmation::cancel')
-                } else {
-                  console.log('Invalid response. Plse comment with either "confirm" or "cancel".')
-                  console.log('::set-output name=confirmation::invalid')
-                }
-            } else {
-              console.log('No user response detected yet.')
-              console.log('::set-output name=confirmation::no-response')
-            }
-
-      - name: Check confirmation & Proceed and configuring Git
-        if : steps.check_file.outputs.confirmation == 'true' && steps['Wait for User Confirmation'].outputs.confirmation == 'confirm'
-        run: | 
-            echo "Confirmation received, proceeding with overwrite..."
-            
+      - name: configuring Git
+        run: |            
             git config --local user.email "action@github.com"
             git config --local user.name "Github Action"
             git remote set --url origin https://github.com/Ani-maurya/integration-kong-student-api.git # set the remote URL of the target repository
             git config --local credential.helper store # store credentials temporarily
             echo "machine github.com login ${{ secrets.PAT }}" > ~/.netrc # use the PAT for authentication
       
-      - name: Handle Cancellation
-        if: steps.check_file.outpus.confirmation == 'true' && steps['Wait for User Confirmation'].outputs.confirmation == 'cancel'
-        run: |
-          echo "Overwrite cancelled by user, exiting workflow."
-          exit 1
 
       - name: Commit and Push Changes
-        if: steps.check_file.outputs.confirmation == 'false' 
+        if: env.confirmation == 'false' 
         run: |
           cd api/student-api
           git add .
