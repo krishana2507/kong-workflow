@@ -57,7 +57,7 @@ jobs:
 
           sudo cp /tmp/deck /usr/local/bin/
 
-          deck file openapi2kong -s Student_v0.4.yml --select-tag=dev -o kong.yaml
+          deck file openapi2kong -s api/student-api/Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: check if file exists
         run: |
