@@ -121,6 +121,7 @@ jobs:
             echo "Branch is up to date. Skipping remaining steps."
             exit 0
           else
+          echo "Branch needs further processing. Continue with remaining steps."
           git add .
           git commit -m "Update kong file"
           git push origin main
