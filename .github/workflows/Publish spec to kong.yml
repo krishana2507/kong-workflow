@@ -116,8 +116,8 @@ jobs:
           cd api/student-api
           # Capture the branch status message
           ls -al
-          git status
-          BRANCH_STATUS=$(git status)
+          git status --porcelain
+          BRANCH_STATUS=$(git status --porcelain)
 
           # Check if the message contains the specific string
           if [[ "$BRANCH_STATUS" == *"On branch main Your branch is up to date with 'origin/main'. nothing to commit, working tree clean"* ]]; then
