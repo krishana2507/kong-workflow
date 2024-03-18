@@ -63,6 +63,7 @@ jobs:
 
       - name: Append Plugins to new-api.yaml
         run: |
+          cd api/student-api
           if [ "${{ vars.RATE_LIMITING }}" == "true"  || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.ACL }}" == "true" ] || "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
           "true" ] ]; then
              sed -i '1,2d' global-config/request-size-limiting.yaml  global-config/oas-validation.yaml global-config/open-id.yaml global-config/acl.yaml
@@ -72,14 +73,14 @@ jobs:
              export plugins=$(cat combined-plugins.yaml)
              export route_plugins=$(cat global-config/acl.yaml)
              echo $plugins
-             cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > modified-api.yaml
+             cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > kong-student-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
 
       - name: check if file exists
         id: check_file
         run: |
-          if[ -f "api/student-api/Student-kong.yaml" ]; then
+          if[ -f "api/student-api/kong-student-api.yaml" ];then
             echo "File already exits."
             echo "Prompting user for confirmation..."
             echo "Please confirm whether you want to override the existing file."
@@ -112,19 +113,57 @@ jobs:
               issue_number
             })
 
-            
+            const userCommnet = comments.find(comment => commnet.user.login !== 'github-action[bot]')
+            if (userComment) {
+                const response = userCommnet.body.trim().toLowerCase()
+                if(reponse === 'confirm') {
+                  console.log('User confirmed overwrite.')
+                  console.log('::set-output name=confirmation::confirm')
+                } else if (response === 'cancel') {
+                  console.log('User cancelled overwrite.')
+                  console.log('::set-output name=confirmation::cancel')
+                } else {
+                  console.log('Invalid response. Plse comment with either "confirm" or "cancel".')
+                  console.log('::set-output name=confirmation::invalid')
+                }
+            } else {
+              console.log('No user response detected yet.')
+              console.log('::set-output name=confirmation::no-response')
+            }
 
+      - name: Check confirmation & Proceed and configuring Git
+        if : steps.check_file.outputs.confirmation == 'true' && steps.Wait for User Confirmation.outputs.confirmation == 'confirm'
+        run: | 
+            echo "Confirmation received, proceeding with overwrite..."
+            
+            git config --local user.email "action@github.com"
+            git config --local user.name "Github Action"
+            git remote set --url origin https://github.com/Ani-maurya/integration-kong-student-api.git # set the remote URL of the target repository
+            git config --local credential.helper store # store credentials temporarily
+            echo "machine github.com login ${{ secrets.PAT }}" > ~/.netrc # use the PAT for authentication
       
-      
-      
-      
+      - name: Handle Cancellation
+        if: steps.check_file.outpus.confirmation == 'true' && steps.Wait for User Confirmation.outputs.confirmation == 'cancel'
+        run: |
+          echo "Overwrite cancelled by user, exiting workflow."
+          exit 1
+
+      - name: Commit and Push Changes
+        if: steps.check_file.outputs.confirmation == 'true'
+        run: |
+          cd api/student-api
+          git add .
+          git commit -m "Update kong file"
+          git push origin main  # specify the remote and branch to push to
+
       - name: Set headers and run deck sync
         run: |
-          cat modified-api.yaml
+          cd api/student-api
+          cat kong-student-api.yaml
           
           # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
-          deck gateway sync  --select-tag dev modified-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.CONTROL_PLANE_NAME }}
+          deck gateway sync  --select-tag dev kong-student-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.CONTROL_PLANE_NAME }}
           
   publish-customer-api-to-portal:
     name: Publish OAS to dev portal
