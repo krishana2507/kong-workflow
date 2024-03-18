@@ -133,7 +133,7 @@ jobs:
             }
 
       - name: Check confirmation & Proceed and configuring Git
-        if : steps.check_file.outputs.confirmation == 'true' && steps.Wait for User Confirmation.outputs.confirmation == 'confirm'
+        if : steps.check_file.outputs.confirmation == 'true' && steps['Wait for User Confirmation'].outputs.confirmation == 'confirm'
         run: | 
             echo "Confirmation received, proceeding with overwrite..."
             
@@ -144,7 +144,7 @@ jobs:
             echo "machine github.com login ${{ secrets.PAT }}" > ~/.netrc # use the PAT for authentication
       
       - name: Handle Cancellation
-        if: steps.check_file.outpus.confirmation == 'true' && steps.Wait for User Confirmation.outputs.confirmation == 'cancel'
+        if: steps.check_file.outpus.confirmation == 'true' && steps['Wait for User Confirmation'].outputs.confirmation == 'cancel'
         run: |
           echo "Overwrite cancelled by user, exiting workflow."
           exit 1
