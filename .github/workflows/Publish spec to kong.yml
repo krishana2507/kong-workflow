@@ -63,7 +63,7 @@ jobs:
 
       - name: Append Plugins to new-api.yaml
         run: |
-          cd api/student-api
+          
           if [ "${{ vars.RATE_LIMITING }}" == "true"  || [ "${{ vars.REQUEST_SIZE_LIMITING }}" == "true" ] || [ "${{ vars.ACL }}" == "true" ] || "${{ vars.OAS_VALIDATION }}" == "true" ] || [ "${{ vars.OPENID_CONNECT }}" ==
           "true" ] ]; then
              sed -i '1,2d' global-config/request-size-limiting.yaml  global-config/oas-validation.yaml global-config/open-id.yaml global-config/acl.yaml
@@ -73,6 +73,7 @@ jobs:
              export plugins=$(cat combined-plugins.yaml)
              export route_plugins=$(cat global-config/acl.yaml)
              echo $plugins
+             cd api/student-api
              cat kong.yaml | yq '.services.[] += env(plugins)' -o yaml | yq '.services[].routes.[].plugins +=env(route_plugins)' -o yaml > kong-student-api.yaml
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
