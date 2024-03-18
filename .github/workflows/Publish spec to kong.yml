@@ -97,7 +97,8 @@ jobs:
     
 
       - name: configuring Git
-        run: |            
+        run: |  
+            cd api/student-api           
             git config --local user.email "action@github.com"
             git config --local user.name "Github Action"
             git remote set --url origin https://github.com/Ani-maurya/integration-kong-student-api.git # set the remote URL of the target repository
