@@ -86,6 +86,15 @@ jobs:
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
 
+      - name: Set headers and run deck sync
+        run: |
+          cd api/student-api
+          cat kong-student-api.yaml
+          
+          # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
+
+          deck gateway sync  --select-tag dev kong-student-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.CONTROL_PLANE_NAME }}
+
     
       - name: Configuring Git
         run: |  
@@ -101,6 +110,14 @@ jobs:
           git commit -m "Update kong file"
           git push origin main  
 
+      - name: Check for changes
+        run: |
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit. Skipping the remaining steps."
+            exit 0  # Skip the remaining steps in this job
+          else
+            echo "Changes detected. Continuing with the workflow."
+          fi
       
       - name: overwriting exiting files  
         if: env.confirmation == 'true'
@@ -110,14 +127,7 @@ jobs:
           git commit -m "Update kong file"
           git push origin main 
 
-      - name: Set headers and run deck sync
-        run: |
-          cd api/student-api
-          cat kong-student-api.yaml
-          
-          # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
-
-          deck gateway sync  --select-tag dev kong-student-api.yaml --konnect-token ${{ secrets.DECK_TOKEN }} --konnect-control-plane-name ${{ vars.CONTROL_PLANE_NAME }}
+      
           
   publish-customer-api-to-portal:
     name: Publish OAS to dev portal
