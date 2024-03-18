@@ -89,7 +89,7 @@ jobs:
       - name: Set headers and run deck sync
         run: |
           cd api/student-api
-          cat kong-student-api.yaml
+          #cat kong-student-api.yaml
           
           # deck file openapi2kong -s test.yaml --select-tag=dev -o kong.yaml
 
@@ -106,7 +106,7 @@ jobs:
         if: env.confirmation == 'false' 
         run: |
           cd api/student-api
-          git add kong-student-api.yaml
+          git add .
           git commit -m "Update kong file"
           git push origin main  
 
