@@ -109,32 +109,14 @@ jobs:
           git add .
           git commit -m "Update kong file"
           git push origin main  
-
-      - name: Check branch status
-        id: check-branch
-        run: |
-          cd api/student-api
-          # Capture the branch status message
-          ls -al
-          git status --porcelain
-          BRANCH_STATUS=$(git status --porcelain)
-
-          # Check if the message contains the specific string
-          if [[ -z "$BRANCH_STATUS" ]]; then
-            echo "Branch is up to date. Skipping remaining steps."
-            exit 0
-          else
-            echo "Branch needs further processing. Continue with remaining steps."
-            # Add your remaining steps here
-          fi
       
-      - name: overwriting exiting files  
+      - name: Check branch status and Overwriting exiting files  
         if: env.confirmation == 'true'
         run: |
           cd api/student-api
           BRANCH_STATUS=$(git status --porcelain)
 
-          # Check if the message contains the specific string
+          # Check if the message contains nothing
           if [[ -z "$BRANCH_STATUS" ]]; then
             echo "Branch is up to date. Skipping remaining steps."
             exit 0
