@@ -80,7 +80,7 @@ jobs:
       - name: check if file exists
         id: check_file
         run: |
-          if[ -f "api/student-api/kong-student-api.yaml" ];then
+          if [ -f "api/student-api/kong-student-api.yaml" ]; then
             echo "File already exits."
             echo "Prompting user for confirmation..."
             echo "Please confirm whether you want to override the existing file."
