@@ -65,8 +65,6 @@ jobs:
         run: |
           if [ -f "api/student-api/kong-student-api.yaml" ]; then
             echo "File already exits."
-            echo "Prompting user for confirmation..."
-            echo "Please confirm whether you want to override the existing file."
             echo "confirmation=true" >> $GITHUB_ENV
           else
             echo "File does not exist."
@@ -105,8 +103,15 @@ jobs:
           git commit -m "Update kong file"
           git push origin main  
 
-      - name: Commit and overwrite changes 
-        if: env.confirmation == 'true' 
+      - name: Ask for consent
+        id: consent
+        run: |
+          echo "Do you want to overwrite the file?" (yes/no)"
+          read USER_CONSENT
+          echo "::set-output name=consent::$USER_CONSENT"
+
+      - name: overwriting exiting files  
+        if: env.confirmation == 'true' && stpes.consent.outputs.consent == 'yes'
         run: |
           cd api/student-api
           git add kong-student-api.yaml
