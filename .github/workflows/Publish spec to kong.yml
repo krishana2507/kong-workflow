@@ -150,7 +150,7 @@ jobs:
           exit 1
 
       - name: Commit and Push Changes
-        if: steps.check_file.outputs.confirmation == 'true'
+        if: steps.check_file.outputs.confirmation == 'true' || steps.check_file.outputs.confirmation == 'false'
         run: |
           cd api/student-api
           git add .
