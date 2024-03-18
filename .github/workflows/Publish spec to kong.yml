@@ -130,7 +130,7 @@ jobs:
         if: env.confirmation == 'true'
         run: |
           cd api/student-api
-          git add kong-student-api.yaml
+          git add .
           git commit -m "Update kong file"
           git push origin main 
 
