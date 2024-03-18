@@ -76,7 +76,7 @@ jobs:
 
       - name: Debug Confirmation Value
         run: | 
-          echo "Confirmation value: ${{ steps.check_file.outputs.confirmation }}"
+          echo "Confirmation value: ${{ env.confirmation }}"
 
       - name: Append Plugins to new-api.yaml
         run: |
@@ -96,7 +96,7 @@ jobs:
           fi
 
       - name: Create Issue for Confirmation
-        if: steps.check_file.outputs.confirmation == 'true'
+        if: env.confirmation == 'false'
         uses: peter-evans/create-issue-from-file@v3
         with:
           title: Confirm Overwrite of kong configuration yaml file
@@ -106,7 +106,7 @@ jobs:
             Please comment with either "confirm" or "cancel".
 
       - name: Wait for User Confirmation
-        if: steps.check_file.outputs.confirmation == 'true'
+        if: env.confirmation == 'false'
         uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
