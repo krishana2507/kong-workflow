@@ -132,11 +132,17 @@ jobs:
         if: env.confirmation == 'true'
         run: |
           cd api/student-api
+          BRANCH_STATUS=$(git status --porcelain)
+
+          # Check if the message contains the specific string
+          if [[ -z "$BRANCH_STATUS" ]]; then
+            echo "Branch is up to date. Skipping remaining steps."
+            exit 0
+          else
           git add .
           git commit -m "Update kong file"
-          git push origin main 
-
-      
+          git push origin main
+          fi     
           
   publish-customer-api-to-portal:
     name: Publish OAS to dev portal
