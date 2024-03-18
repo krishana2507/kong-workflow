@@ -92,7 +92,7 @@ jobs:
           fi
 
       - name: Create Issue for Confirmation
-        if: steps.check_file.outputs.confirmation == 'true'
+        if: steps.check_file.outputs.confirmation == 'false'
         uses: peter-evans/create-issue-from-file@v3
         with:
           title: Confirm Overwrite of kong configuration yaml file
