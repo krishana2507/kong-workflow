@@ -76,6 +76,48 @@ jobs:
              # cat new-api.yaml | yq '.services.[] += env(plugins)' -o yaml > modified-api.yaml
           fi
 
+      - name: check if file exists
+        id: check_file
+        run: |
+          if[ -f "api/student-api/Student-kong.yaml" ]; then
+            echo "File already exits."
+            echo "Prompting user for confirmation..."
+            echo "Please confirm whether you want to override the existing file."
+            echo "::set-output name=confirmation::true"
+          else
+            echo "File does not exist."
+            echo "::set-output name=confirmation::false"
+          fi
+
+      - name: Create Issue for Confirmation
+        if: steps.check_file.outputs.confirmation == 'true'
+        uses: peter-evans/create-issue-from-file@v3
+        with:
+          title: Confirm Overwrite of kong configuration yaml file
+          content: |
+            The file 'kong-configuration.yaml' already exists  in the directory.
+            Do you want to override the existing file?
+            Please comment with either "confirm" or "cancel".
+
+      - name: Wait for User Confirmation
+        if: steps.check_file.outpus.confirmation == 'true'
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue_number = context.payload.issue.number
+            const { data: comments } = await github.issue.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number
+            })
+
+            
+
+      
+      
+      
+      
       - name: Set headers and run deck sync
         run: |
           cat modified-api.yaml
