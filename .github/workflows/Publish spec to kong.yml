@@ -112,7 +112,7 @@ jobs:
 
       - name: Check branch status
         id: check-branch
-        run: >
+        run: |
           cd api/student-api
           # Capture the branch status message
           ls -al
