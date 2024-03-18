@@ -59,7 +59,7 @@ jobs:
 
           cd api/student-api
 
-          deck file openapi2kong -s api/student-api/Student_v0.4.yml --select-tag=dev -o kong.yaml
+          deck file openapi2kong -s Student_v0.4.yml --select-tag=dev -o kong.yaml
 
       - name: Append Plugins to new-api.yaml
         run: |
