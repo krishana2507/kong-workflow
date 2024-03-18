@@ -110,14 +110,20 @@ jobs:
           git commit -m "Update kong file"
           git push origin main  
 
-      - name: Check for changes
+      - name: Check branch status
+        id: check-branch
         run: |
           cd api/student-api
-          if git diff-index --quiet HEAD --; then
-            echo "No changes to commit. Skipping the remaining steps."
-            exit 0  # Skip the remaining steps in this job
+          # Capture the branch status message
+          BRANCH_STATUS=$(git status)
+
+          # Check if the message contains the specific string
+          if [[ "$BRANCH_STATUS" == *"On branch main Your branch is up to date with 'origin/main'"* ]]; then
+            echo "Branch is up to date. Skipping remaining steps."
+            exit 0
           else
-            echo "Changes detected. Continuing with the workflow."
+            echo "Branch needs further processing. Continue with remaining steps."
+            # Add your remaining steps here
           fi
       
       - name: overwriting exiting files  
