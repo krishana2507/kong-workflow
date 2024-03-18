@@ -50,8 +50,7 @@ jobs:
           yq --version
 
       - name: Install deck CLI
-        run: |
-          cd api/student-api
+        run: |       
           curl -sL
           https://github.com/kong/deck/releases/download/v1.34.0/deck_1.34.0_linux_amd64.tar.gz
           -o deck.tar.gz
@@ -59,6 +58,8 @@ jobs:
           tar -xf deck.tar.gz -C /tmp 
 
           sudo cp /tmp/deck /usr/local/bin/
+
+          cd api/student-api
 
           deck file openapi2kong -s api/student-api/Student_v0.4.yml --select-tag=dev -o kong.yaml
 
