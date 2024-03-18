@@ -73,10 +73,6 @@ jobs:
             echo "confirmation=false" >> $GITHUB_ENV
           fi
 
-      - name: Debug Confirmation Value
-        run: | 
-          echo "Confirmation value: ${{ env.confirmation }}"
-
       - name: Append Plugins to new-api.yaml
         run: |
           
@@ -101,13 +97,21 @@ jobs:
             git config --local user.email "action@github.com"
             git config --local user.name "Github Action"
 
-      - name: Commit and Push Changes
+      - name: Commit and Push Changes if file not exist
         if: env.confirmation == 'false' 
         run: |
           cd api/student-api
           git add kong-student-api.yaml
           git commit -m "Update kong file"
-          git push origin main  # specify the remote and branch to push to
+          git push origin main  
+
+      - name: Commit and overwrite changes 
+        if: env.confirmation == 'true' 
+        run: |
+          cd api/student-api
+          git add kong-student-api.yaml
+          git commit -m "Update kong file"
+          git push origin main 
 
       - name: Set headers and run deck sync
         run: |
@@ -272,7 +276,7 @@ jobs:
         run: |
           echo "API PRODUCT ID: $API_PRODUCT_ID"
           echo "API Product Version ID: $API_Product_Version_ID"
-          encoded_spec=$(base64 -w 0 Student_v0.4.yml)
+          encoded_spec=$(base64 -w 0 student-api/Student_v0.4.yml)
           echo $encoded_spec
           curl --location --request POST "${{ vars.ADMIN_API_URL }}/api-products/$API_PRODUCT_ID/product-versions/$API_Product_Version_ID/specifications" \
             --header 'Authorization: ${{ secrets.PIPELINE_TOKEN }}' \
