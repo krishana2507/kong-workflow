@@ -20,7 +20,7 @@ jobs:
       - name: Checkout Code from global config
         uses: actions/checkout@v2
         with:
-          repository: 'Ani-maurya/${{ github.event.inputs.plugin_repo_name }}'
+          repository: 'krishana2507/${{ github.event.inputs.plugin_repo_name }}'
           ref: 'main'
           token: ${{ secrets.PAT }}
           path: global-config
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout Code from student api
         uses: actions/checkout@v2
         with:
-          repository: 'Ani-maurya/${{ github.event.inputs.student_api_repo_name }}'
+          repository: 'krishana2507/${{ github.event.inputs.student_api_repo_name }}'
           ref: 'main'
           token: ${{ secrets.PAT }}
           path: api
@@ -135,7 +135,7 @@ jobs:
       - name: Checkout Code from another repository
         uses: actions/checkout@v2
         with:
-          repository: Ani-maurya/${{ github.event.inputs.student_api_repo_name }}
+          repository: krishana2507/${{ github.event.inputs.student_api_repo_name }}
           ref: main
           token: ${{ secrets.PAT }}
 
